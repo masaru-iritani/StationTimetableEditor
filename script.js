@@ -26,7 +26,7 @@ function createEditableInput(cell, defaultValue, isNumeric, callback) {
 
 function handleTableBodyCellDblClick(e) {
     if (e.target.tagName === 'SPAN') {
-        e.target.addEventListener('dblclick', handleSpanDblClick);
+        e.target.removeEventListener('dblclick', handleSpanDblClick);
         return;
     }
     createEditableInput(this, '00', true, function() {
@@ -52,4 +52,5 @@ function handleSpanDblClick(e) {
         span.textContent = this.value.padStart(2, '0') + ', ';
         cell.removeChild(this);
     });
+    e.stopPropagation();
 }
