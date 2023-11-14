@@ -27,6 +27,7 @@ function createEditableInput(cell, defaultValue, isNumeric, callback) {
 function sortCellNumbers(cell) {
     const spans = Array.from(cell.querySelectorAll('span'));
     spans.sort((a, b) => parseInt(a.textContent) - parseInt(b.textContent));
+    cell.innerHTML = '';
     spans.forEach(span => cell.appendChild(span));
 }
 
