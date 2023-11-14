@@ -24,6 +24,12 @@ function createEditableInput(cell, defaultValue, isNumeric, callback) {
     });
 }
 
+function sortCellNumbers(cell) {
+    const spans = Array.from(cell.querySelectorAll('span'));
+    spans.sort((a, b) => parseInt(a.textContent) - parseInt(b.textContent));
+    spans.forEach(span => cell.appendChild(span));
+}
+
 function handleTableBodyCellDblClick(e) {
     if (e.target.tagName === 'SPAN') {
         e.target.removeEventListener('dblclick', handleSpanDblClick);
@@ -35,6 +41,7 @@ function handleTableBodyCellDblClick(e) {
         span.addEventListener('dblclick', handleSpanDblClick);
         this.parentElement.insertBefore(span, this);
         this.parentElement.removeChild(this);
+        sortCellNumbers(this.parentElement);
     });
 }
 
