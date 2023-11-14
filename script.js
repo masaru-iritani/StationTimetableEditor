@@ -43,7 +43,9 @@ function handleTableBodyCellDblClick(e) {
         return;
     }
     createEditableInput(this, '00', true, function() {
-        const normalizedValue = parseInt(this.value).toString().padStart(2, '0');
+        const inputValue = parseInt(this.value);
+        if (inputValue >= 60) return;
+        const normalizedValue = inputValue.toString().padStart(2, '0');
         const span = document.createElement('span');
         span.textContent = normalizedValue + ', ';
         span.addEventListener('dblclick', handleSpanDblClick);
