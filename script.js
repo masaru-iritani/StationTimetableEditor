@@ -25,10 +25,15 @@ function createEditableInput(cell, defaultValue, isNumeric, callback) {
 }
 
 function sortCellNumbers(cell) {
-    const spans = Array.from(cell.querySelectorAll('span'));
-    spans.sort((a, b) => parseInt(a.textContent) - parseInt(b.textContent));
+    const numbers = Array.from(cell.querySelectorAll('span')).map(span => span.textContent);
+    numbers.sort((a, b) => parseInt(a) - parseInt(b));
     cell.innerHTML = '';
-    spans.forEach(span => cell.appendChild(span));
+    numbers.forEach(num => {
+        const span = document.createElement('span');
+        span.textContent = num;
+        span.addEventListener('dblclick', handleSpanDblClick);
+        cell.appendChild(span);
+    });
 }
 
 function handleTableBodyCellDblClick(e) {
