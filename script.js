@@ -46,7 +46,7 @@ function handleTableBodyCellDblClick(e) {
         const span = document.createElement('span');
         span.textContent = this.value.padStart(2, '0') + ', ';
         span.addEventListener('dblclick', handleSpanDblClick);
-        this.parentElement.appendChild(span);
+        this.parentElement.insertBefore(span, this);
         this.parentElement.removeChild(this);
         sortCellNumbers(this.parentElement);
     });
