@@ -25,12 +25,13 @@ function createEditableInput(cell, defaultValue, isNumeric, callback) {
 }
 
 function sortCellNumbers(cell) {
-    const numbers = Array.from(cell.querySelectorAll('span')).map(span => span.textContent);
-    numbers.sort((a, b) => parseInt(a) - parseInt(b));
+    const numbers = Array.from(cell.querySelectorAll('span'))
+                         .map(span => parseInt(span.textContent));
+    numbers.sort((a, b) => a - b);
     cell.innerHTML = '';
     numbers.forEach(num => {
         const span = document.createElement('span');
-        span.textContent = num;
+        span.textContent = num.toString().padStart(2, '0') + ', ';
         span.addEventListener('dblclick', handleSpanDblClick);
         cell.appendChild(span);
     });
