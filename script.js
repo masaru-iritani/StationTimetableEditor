@@ -43,8 +43,9 @@ function handleTableBodyCellDblClick(e) {
         return;
     }
     createEditableInput(this, '00', true, function() {
+        const normalizedValue = parseInt(this.value).toString().padStart(2, '0');
         const span = document.createElement('span');
-        span.textContent = this.value.padStart(2, '0') + ', ';
+        span.textContent = normalizedValue + ', ';
         span.addEventListener('dblclick', handleSpanDblClick);
         this.parentElement.insertBefore(span, this);
         this.parentElement.removeChild(this);
