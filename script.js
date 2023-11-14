@@ -25,10 +25,14 @@ function createEditableInput(cell, defaultValue, isNumeric, callback) {
 }
 
 function handleTableBodyCellDblClick(e) {
-    if (e.target !== this) return;
+    if (e.target.tagName === 'SPAN') {
+        e.target.addEventListener('dblclick', handleSpanDblClick);
+        return;
+    }
     createEditableInput(this, '00', true, function() {
         const span = document.createElement('span');
         span.textContent = this.value.padStart(2, '0') + ', ';
+        span.addEventListener('dblclick', handleSpanDblClick);
         this.parentElement.insertBefore(span, this);
         this.parentElement.removeChild(this);
     });
@@ -38,5 +42,14 @@ function handleTableHeaderCellDblClick() {
     createEditableInput(this, this.innerText, false, function() {
         const newHeader = this.value.trim() || 'Column 2';
         this.parentElement.innerText = newHeader;
+    });
+}
+
+function handleSpanDblClick(e) {
+    const cell = this.parentElement;
+    const span = this;
+    createEditableInput(cell, span.textContent.slice(0, -2), true, function() {
+        span.textContent = this.value.padStart(2, '0') + ', ';
+        cell.removeChild(this);
     });
 }
