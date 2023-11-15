@@ -30,3 +30,7 @@ footer a, footer a:visited {
     color: white;
     text-decoration: none;
 }
+
+table {
+    margin: 20px auto;
+}
