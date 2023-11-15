@@ -60,6 +60,7 @@ function handleTableHeaderCellDblClick() {
     createEditableInput(this, this.innerText, false, function() {
         const newHeader = this.value.trim() || 'Column 2';
         this.parentElement.innerText = newHeader;
+        updateURLHash(this.parentElement);
     });
 }
 
