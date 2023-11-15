@@ -51,6 +51,7 @@ function handleTableBodyCellDblClick(e) {
         span.addEventListener('dblclick', handleSpanDblClick);
         insertSortedSpan(this.parentElement, span);
         this.parentElement.removeChild(this);
+        updateURLHash(this.parentElement);
     });
 }
 
@@ -78,6 +79,7 @@ function handleSpanDblClick(e) {
         cell.removeChild(oldSpan);
         insertSortedSpan(cell, newSpan);
         cell.removeChild(this);
+        updateURLHash(cell);
     });
     oldSpan.style.display = 'none'; // Hide the original span during editing
     e.stopPropagation();
@@ -92,4 +94,15 @@ function insertSortedSpan(cell, newSpan) {
     } else {
         cell.insertBefore(newSpan, spans[insertionIndex]); // Insert before the first larger number
     }
+}
+
+function updateURLHash(cell) {
+    const rows = Array.from(document.querySelectorAll('table tr:not(:first-child)'));
+    const timetable = rows.map(row => {
+        const hourCell = row.cells[0].innerText;
+        const minuteCells = Array.from(row.cells[1].querySelectorAll('span'));
+        const minutes = minuteCells.map(span => span.textContent.slice(0, -2));
+        return hourCell + ':' + minutes.join(',');
+    }).join('|');
+    window.location.hash = timetable;
 }
