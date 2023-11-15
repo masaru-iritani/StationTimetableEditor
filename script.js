@@ -98,6 +98,7 @@ function insertSortedSpan(cell, newSpan) {
 }
 
 function updateURLHash(cell) {
+    const headerText = document.querySelector('table th:nth-child(2)').innerText;
     const rows = Array.from(document.querySelectorAll('table tr:not(:first-child)'));
     const timetable = rows.map(row => {
         const hourCell = row.cells[0].innerText;
@@ -105,14 +106,17 @@ function updateURLHash(cell) {
         const minutes = minuteCells.map(span => span.textContent.slice(0, -2));
         return hourCell + ':' + minutes.join(',');
     }).join('|');
-    window.location.hash = timetable;
+    window.location.hash = headerText + '#' + timetable;
 }
 
 function parseHashAndRestoreTimetable() {
-    const hash = window.location.hash.slice(1);
-    if (!hash) return;
+    const hashParts = window.location.hash.slice(1).split('#');
+    if (hashParts.length < 2) return;
 
-    const timetable = hash.split('|');
+    const headerText = hashParts[0];
+    document.querySelector('table th:nth-child(2)').innerText = headerText;
+
+    const timetable = hashParts[1].split('|');
     timetable.forEach(entry => {
         const [hour, minutes] = entry.split(':');
         if (!minutes) return;
@@ -133,3 +137,4 @@ function parseHashAndRestoreTimetable() {
         });
     });
 }
+
