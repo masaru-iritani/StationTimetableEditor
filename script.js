@@ -99,7 +99,7 @@ function insertSortedSpan(cell, newSpan) {
 }
 
 function updateURLHash(cell) {
-    const headerText = document.querySelector('table th:nth-child(2)').innerText;
+    const headerText = encodeURIComponent(document.querySelector('table th:nth-child(2)').innerText);
     const rows = Array.from(document.querySelectorAll('table tr:not(:first-child)'));
     const timetable = rows.map(row => {
         const hourCell = row.cells[0].innerText;
@@ -111,7 +111,7 @@ function updateURLHash(cell) {
 }
 
 function parseHashAndRestoreTimetable() {
-    const hashParts = window.location.hash.slice(1).split('#');
+    const hashParts = decodeURIComponent(window.location.hash.slice(1)).split('#');
     if (hashParts.length < 2) return;
 
     const headerText = hashParts[0];
@@ -143,4 +143,3 @@ function parseHashAndRestoreTimetable() {
         });
     });
 }
-
