@@ -102,7 +102,7 @@ function parseHashAndRestoreTimetable() {
     if (hashParts.length < 2) return;
 
     const headerText = decodeURIComponent(hashParts[0]);
-    document.querySelector('table th:nth-child(2)').innerText = headerText || 'Column 2'; // Set default text if header is empty
+    document.querySelector('table th:nth-child(2)').innerText = headerText; // Directly set the text, allowing for empty header
 
     const timetable = hashParts[1].split(';');
     timetable.forEach(entry => {
