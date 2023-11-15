@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cell.addEventListener('dblclick', handleTableBodyCellDblClick);
     });
     document.querySelector('table th:nth-child(2)').addEventListener('dblclick', handleTableHeaderCellDblClick);
+    parseHashAndRestoreTimetable();
 });
 
 function createEditableInput(cell, defaultValue, isNumeric, callback) {
@@ -105,4 +106,25 @@ function updateURLHash(cell) {
         return hourCell + ':' + minutes.join(',');
     }).join('|');
     window.location.hash = timetable;
+}
+
+function parseHashAndRestoreTimetable() {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+
+    const timetable = hash.split('|');
+    timetable.forEach(entry => {
+        const [hour, minutes] = entry.split(':');
+        if (!minutes) return;
+        const row = document.querySelector(`table tr td:first-child:contains('${hour}')`).parentNode;
+        const minuteCell = row.cells[1];
+        minuteCell.innerHTML = ''; // Clear the cell before inserting new data
+        minutes.split(',').forEach(min => {
+            if (min === '') return;
+            const span = document.createElement('span');
+            span.textContent = min.padStart(2, '0') + ', ';
+            span.addEventListener('dblclick', handleSpanDblClick);
+            minuteCell.appendChild(span);
+        });
+    });
 }
