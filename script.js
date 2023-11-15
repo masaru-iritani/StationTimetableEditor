@@ -86,7 +86,7 @@ function insertSortedSpan(cell, newSpan) {
 }
 
 function updateURLHash(cell) {
-    const headerText = encodeURIComponent(document.querySelector('table th:nth-child(2)').innerText);
+    const headerText = document.querySelector('table th:nth-child(2)').innerText;
     const rows = Array.from(document.querySelectorAll('table tr:not(:first-child)'));
     const timetable = rows.map(row => {
         const hourCell = row.cells[0].innerText;
@@ -94,14 +94,14 @@ function updateURLHash(cell) {
         const minutes = minuteCells.map(span => span.textContent.slice(0, -2));
         return hourCell + ':' + minutes.join(',');
     }).join(';');
-    window.location.hash = headerText + '|' + timetable;
+    window.location.hash = encodeURIComponent(headerText) + '|' + timetable;
 }
 
 function parseHashAndRestoreTimetable() {
-    const hashParts = decodeURIComponent(window.location.hash.slice(1)).split('|');
+    const hashParts = window.location.hash.slice(1).split('|');
     if (hashParts.length < 2) return;
 
-    const headerText = hashParts[0];
+    const headerText = decodeURIComponent(hashParts[0]);
     document.querySelector('table th:nth-child(2)').innerText = headerText || 'Column 2'; // Set default text if header is empty
 
     const timetable = hashParts[1].split(';');
