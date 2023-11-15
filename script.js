@@ -116,9 +116,14 @@ function parseHashAndRestoreTimetable() {
     timetable.forEach(entry => {
         const [hour, minutes] = entry.split(':');
         if (!minutes) return;
-        const row = document.querySelector(`table tr td:first-child:contains('${hour}')`).parentNode;
+
+        const rows = Array.from(document.querySelectorAll('table tr:not(:first-child)'));
+        const row = rows.find(r => r.cells[0].innerText === hour);
+        if (!row) return;
+
         const minuteCell = row.cells[1];
         minuteCell.innerHTML = ''; // Clear the cell before inserting new data
+
         minutes.split(',').forEach(min => {
             if (min === '') return;
             const span = document.createElement('span');
