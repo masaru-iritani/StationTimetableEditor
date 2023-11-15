@@ -63,11 +63,23 @@ function handleTableHeaderCellDblClick() {
 
 function handleSpanDblClick(e) {
     const cell = this.parentElement;
-    const span = this;
-    createEditableInput(cell, span.textContent.slice(0, -2), true, function() {
-        span.textContent = this.value.padStart(2, '0') + ', ';
+    const oldSpan = this;
+    createEditableInput(cell, oldSpan.textContent.slice(0, -2), true, function() {
+        const inputValue = parseInt(this.value);
+        if (inputValue >= 60) {
+            oldSpan.style.display = 'inline'; // Show the original span if input is invalid
+            cell.removeChild(this);
+            return;
+        }
+        const normalizedValue = inputValue.toString().padStart(2, '0');
+        const newSpan = document.createElement('span');
+        newSpan.textContent = normalizedValue + ', ';
+        newSpan.addEventListener('dblclick', handleSpanDblClick);
+        cell.removeChild(oldSpan);
+        insertSortedSpan(cell, newSpan);
         cell.removeChild(this);
     });
+    oldSpan.style.display = 'none'; // Hide the original span during editing
     e.stopPropagation();
 }
 
