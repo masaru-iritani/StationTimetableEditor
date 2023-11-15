@@ -93,18 +93,18 @@ function updateURLHash(cell) {
         const minuteCells = Array.from(row.cells[1].querySelectorAll('span'));
         const minutes = minuteCells.map(span => span.textContent.slice(0, -2));
         return hourCell + ':' + minutes.join(',');
-    }).join('|');
-    window.location.hash = headerText + '#' + timetable;
+    }).join(';');
+    window.location.hash = headerText + '|' + timetable;
 }
 
 function parseHashAndRestoreTimetable() {
-    const hashParts = decodeURIComponent(window.location.hash.slice(1)).split('#');
+    const hashParts = decodeURIComponent(window.location.hash.slice(1)).split('|');
     if (hashParts.length < 2) return;
 
     const headerText = hashParts[0];
     document.querySelector('table th:nth-child(2)').innerText = headerText || 'Column 2'; // Set default text if header is empty
 
-    const timetable = hashParts[1].split('|');
+    const timetable = hashParts[1].split(';');
     timetable.forEach(entry => {
         const [hour, minutes] = entry.split(':');
         if (!minutes) return;
