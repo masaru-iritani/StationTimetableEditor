@@ -129,12 +129,18 @@ function parseHashAndRestoreTimetable() {
         const minuteCell = row.cells[1];
         minuteCell.innerHTML = ''; // Clear the cell before inserting new data
 
-        minutes.split(',').forEach(min => {
-            if (min === '' || isNaN(min) || parseInt(min) < 0 || parseInt(min) >= 60) return;
+        const sortedMinutes = minutes.split(',')
+                                     .filter(min => min !== '' && !isNaN(min) && parseInt(min) >= 0 && parseInt(min) < 60)
+                                     .map(min => parseInt(min))
+                                     .sort((a, b) => a - b)
+                                     .map(min => min.toString().padStart(2, '0') + ', ');
+
+        sortedMinutes.forEach(min => {
             const span = document.createElement('span');
-            span.textContent = min.padStart(2, '0') + ', ';
+            span.textContent = min;
             span.addEventListener('dblclick', handleSpanDblClick);
             minuteCell.appendChild(span);
         });
     });
 }
+
