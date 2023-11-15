@@ -49,9 +49,8 @@ function handleTableBodyCellDblClick(e) {
         const span = document.createElement('span');
         span.textContent = normalizedValue + ', ';
         span.addEventListener('dblclick', handleSpanDblClick);
-        this.parentElement.insertBefore(span, this);
+        insertSortedSpan(this.parentElement, span);
         this.parentElement.removeChild(this);
-        sortCellNumbers(this.parentElement);
     });
 }
 
@@ -70,4 +69,15 @@ function handleSpanDblClick(e) {
         cell.removeChild(this);
     });
     e.stopPropagation();
+}
+
+function insertSortedSpan(cell, newSpan) {
+    const spans = Array.from(cell.querySelectorAll('span'));
+    const newNumber = parseInt(newSpan.textContent);
+    const insertionIndex = spans.findIndex(span => parseInt(span.textContent) > newNumber);
+    if (insertionIndex === -1) {
+        cell.appendChild(newSpan); // Append at the end if no larger number is found
+    } else {
+        cell.insertBefore(newSpan, spans[insertionIndex]); // Insert before the first larger number
+    }
 }
