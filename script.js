@@ -25,19 +25,6 @@ function createEditableInput(cell, defaultValue, isNumeric, callback) {
     });
 }
 
-function sortCellNumbers(cell) {
-    const numbers = Array.from(cell.querySelectorAll('span'))
-                         .map(span => parseInt(span.textContent));
-    numbers.sort((a, b) => a - b);
-    cell.innerHTML = '';
-    numbers.forEach(num => {
-        const span = document.createElement('span');
-        span.textContent = num.toString().padStart(2, '0') + ', ';
-        span.addEventListener('dblclick', handleSpanDblClick);
-        cell.appendChild(span);
-    });
-}
-
 function handleTableBodyCellDblClick(e) {
     if (e.target.tagName === 'SPAN') {
         e.target.removeEventListener('dblclick', handleSpanDblClick);
@@ -115,7 +102,7 @@ function parseHashAndRestoreTimetable() {
     if (hashParts.length < 2) return;
 
     const headerText = hashParts[0];
-    document.querySelector('table th:nth-child(2)').innerText = headerText;
+    document.querySelector('table th:nth-child(2)').innerText = headerText || 'Column 2'; // Set default text if header is empty
 
     const timetable = hashParts[1].split('|');
     timetable.forEach(entry => {
