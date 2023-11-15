@@ -130,7 +130,7 @@ function parseHashAndRestoreTimetable() {
         minuteCell.innerHTML = ''; // Clear the cell before inserting new data
 
         minutes.split(',').forEach(min => {
-            if (min === '') return;
+            if (min === '' || isNaN(min) || parseInt(min) < 0 || parseInt(min) >= 60) return;
             const span = document.createElement('span');
             span.textContent = min.padStart(2, '0') + ', ';
             span.addEventListener('dblclick', handleSpanDblClick);
@@ -138,4 +138,3 @@ function parseHashAndRestoreTimetable() {
         });
     });
 }
-
