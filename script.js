@@ -24,6 +24,9 @@ function createEditableInput(cell, defaultValue, isNumeric, callback) {
         }
         if (e.key === 'Escape') {
             cell.removeChild(this);
+            if (cell.querySelector('span')) {
+                cell.querySelector('span').style.display = 'inline'; // Show the original span if it exists
+            }
         }
     });
 }
@@ -31,6 +34,29 @@ function createEditableInput(cell, defaultValue, isNumeric, callback) {
 function handleTableBodyCellDblClick(e) {
     if (e.target.tagName === 'SPAN') {
         e.target.removeEventListener('dblclick', handleSpanDblClick);
+        e.target.style.display = 'none'; // Hide the original span during editing
+        createEditableInput(this, e.target.textContent, true, function() {
+            const inputValue = this.value.trim();
+            if (inputValue === '' || isNaN(inputValue)) {
+                e.target.style.display = 'inline';
+                this.parentElement.removeChild(this);
+                return;
+            }
+            const parsedValue = parseInt(inputValue);
+            if (parsedValue >= 60) {
+                e.target.style.display = 'inline';
+                this.parentElement.removeChild(this);
+                return;
+            }
+            const normalizedValue = parsedValue.toString().padStart(2, '0');
+
+            const newSpan = document.createElement('span');
+            newSpan.textContent = normalizedValue;
+            newSpan.addEventListener('dblclick', handleSpanDblClick);
+            this.parentElement.replaceChild(newSpan, e.target);
+            this.parentElement.removeChild(this);
+            updateURLHash(this.parentElement);
+        });
         return;
     }
     createEditableInput(this, '00', true, function() {
