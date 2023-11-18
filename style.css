@@ -64,3 +64,8 @@ table th, table td {
     min-width: 150px; /* Ensure minimum width for each cell */
     text-align: center;
 }
+
+table th:first-child, table th:last-child,
+table td:first-child, table td:last-child {
+    min-width: 50px; /* Reduce the width for the first and last columns */
+}
