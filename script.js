@@ -31,9 +31,14 @@ function handleTableBodyCellDblClick(e) {
         return;
     }
     createEditableInput(this, '00', true, function() {
-        const inputValue = parseInt(this.value);
-        if (inputValue >= 60) return;
-        const normalizedValue = inputValue.toString().padStart(2, '0');
+        const inputValue = this.value.trim();
+        if (inputValue === '' || isNaN(inputValue)) {
+            this.parentElement.removeChild(this);
+            return;
+        }
+        const parsedValue = parseInt(inputValue);
+        if (parsedValue >= 60) return;
+        const normalizedValue = parsedValue.toString().padStart(2, '0');
 
         // Check if the number already exists in the cell
         if (Array.from(this.parentElement.querySelectorAll('span'))
