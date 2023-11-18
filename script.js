@@ -37,13 +37,13 @@ function handleTableBodyCellDblClick(e) {
 
         // Check if the number already exists in the cell
         if (Array.from(this.parentElement.querySelectorAll('span'))
-                 .some(span => span.textContent.startsWith(normalizedValue))) {
+                 .some(span => span.textContent === normalizedValue)) {
             this.parentElement.removeChild(this);
             return;
         }
 
         const span = document.createElement('span');
-        span.textContent = normalizedValue + ', ';
+        span.textContent = normalizedValue;
         span.addEventListener('dblclick', handleSpanDblClick);
         insertSortedSpan(this.parentElement, span);
         this.parentElement.removeChild(this);
@@ -62,7 +62,7 @@ function handleTableHeaderCellDblClick() {
 function handleSpanDblClick(e) {
     const cell = this.parentElement;
     const oldSpan = this;
-    createEditableInput(cell, oldSpan.textContent.slice(0, -2), true, function() {
+    createEditableInput(cell, oldSpan.textContent, true, function() {
         const inputValue = parseInt(this.value);
         if (inputValue >= 60) {
             oldSpan.style.display = 'inline'; // Show the original span if input is invalid
@@ -71,7 +71,7 @@ function handleSpanDblClick(e) {
         }
         const normalizedValue = inputValue.toString().padStart(2, '0');
         const newSpan = document.createElement('span');
-        newSpan.textContent = normalizedValue + ', ';
+        newSpan.textContent = normalizedValue;
         newSpan.addEventListener('dblclick', handleSpanDblClick);
         cell.removeChild(oldSpan);
         insertSortedSpan(cell, newSpan);
@@ -129,7 +129,7 @@ function parseHashAndRestoreTimetable() {
                                      .map(min => parseInt(min)))];
 
         const sortedMinutes = uniqueMinutes.sort((a, b) => a - b)
-                                           .map(min => min.toString().padStart(2, '0') + ', ');
+                                           .map(min => min.toString().padStart(2, '0'));
 
         sortedMinutes.forEach(min => {
             const span = document.createElement('span');
