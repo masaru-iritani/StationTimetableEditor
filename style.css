@@ -38,3 +38,24 @@ table {
 table td:nth-child(2) span {
     margin-right: 5px;
 }
+
+#add-column {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    border-radius: 8px;
+}
+
+#add-column:hover {
+    background-color: white;
+    color: black;
+    border: 1px solid #4CAF50;
+}
