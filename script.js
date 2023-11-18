@@ -259,9 +259,6 @@ function parseHashAndRestoreTimetable() {
             });
         });
     });
-
-    // Ensure the last column with the plus button is always present
-    addEmptyColumn();
 }
 
 document.getElementById('add-column').addEventListener('click', addNewColumn);
