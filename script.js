@@ -101,48 +101,60 @@ function insertSortedSpan(cell, newSpan) {
 }
 
 function updateURLHash(cell) {
-    const headerText = document.querySelector('table th:nth-child(2)').innerText;
+    const headerCells = Array.from(document.querySelectorAll('table th:not(:first-child, :last-child)'));
+    const headers = headerCells.map(header => encodeURIComponent(header.innerText)).join('|');
     const rows = Array.from(document.querySelectorAll('table tr:not(:first-child)'));
+
     const timetable = rows.map(row => {
         const hourCell = row.cells[0].innerText;
-        const minuteCells = Array.from(row.cells[1].querySelectorAll('span'));
-        const minutes = minuteCells.map(span => span.textContent.slice(0, -2));
-        return hourCell + ':' + minutes.join(',');
+        const minuteCells = Array.from(row.querySelectorAll('td:not(:first-child, :last-child)'));
+        const minutesGroups = minuteCells.map(cell => {
+            const minutes = Array.from(cell.querySelectorAll('span'))
+                                 .map(span => span.textContent);
+            return minutes.join(',');
+        });
+        return hourCell + ':' + minutesGroups.join('|');
     }).join(';');
-    window.location.hash = encodeURIComponent(headerText) + '|' + timetable;
+
+    window.location.hash = headers + '#' + timetable;
 }
 
 function parseHashAndRestoreTimetable() {
-    const hashParts = window.location.hash.slice(1).split('|');
+    const hashParts = window.location.hash.slice(1).split('#');
     if (hashParts.length < 2) return;
 
-    const headerText = decodeURIComponent(hashParts[0]);
-    document.querySelector('table th:nth-child(2)').innerText = headerText; // Directly set the text, allowing for empty header
+    const headerTexts = hashParts[0].split('|').map(text => decodeURIComponent(text));
+    headerTexts.forEach((text, index) => {
+        const header = document.querySelector(`table th:nth-child(${index + 2})`);
+        header.innerText = text;
+    });
 
     const timetable = hashParts[1].split(';');
     timetable.forEach(entry => {
-        const [hour, minutes] = entry.split(':');
-        if (!minutes) return;
+        const [hour, ...minutesGroups] = entry.split(':');
+        if (!minutesGroups.length) return;
 
         const rows = Array.from(document.querySelectorAll('table tr:not(:first-child)'));
         const row = rows.find(r => r.cells[0].innerText === hour);
         if (!row) return;
 
-        const minuteCell = row.cells[1];
-        minuteCell.innerHTML = ''; // Clear the cell before inserting new data
+        minutesGroups.forEach((group, index) => {
+            const minuteCell = row.cells[index + 1];
+            minuteCell.innerHTML = ''; // Clear the cell before inserting new data
 
-        const uniqueMinutes = [...new Set(minutes.split(',')
-                                     .filter(min => min !== '' && !isNaN(min) && parseInt(min) >= 0 && parseInt(min) < 60)
-                                     .map(min => parseInt(min)))];
+            const uniqueMinutes = [...new Set(group.split(',')
+                                        .filter(min => min !== '' && !isNaN(min) && parseInt(min) >= 0 && parseInt(min) < 60)
+                                        .map(min => parseInt(min)))];
 
-        const sortedMinutes = uniqueMinutes.sort((a, b) => a - b)
-                                           .map(min => min.toString().padStart(2, '0'));
+            const sortedMinutes = uniqueMinutes.sort((a, b) => a - b)
+                                               .map(min => min.toString().padStart(2, '0'));
 
-        sortedMinutes.forEach(min => {
-            const span = document.createElement('span');
-            span.textContent = min;
-            span.addEventListener('dblclick', handleSpanDblClick);
-            minuteCell.appendChild(span);
+            sortedMinutes.forEach(min => {
+                const span = document.createElement('span');
+                span.textContent = min;
+                span.addEventListener('dblclick', handleSpanDblClick);
+                minuteCell.appendChild(span);
+            });
         });
     });
 }
