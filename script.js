@@ -113,7 +113,7 @@ function updateURLHash(cell) {
                                  .map(span => span.textContent);
             return minutes.join(',');
         });
-        return hourCell + ':' + minutesGroups.join('|');
+        return hourCell + ':' + minutesGroups.join(':');
     }).join(';');
 
     window.location.hash = headers + '#' + timetable;
