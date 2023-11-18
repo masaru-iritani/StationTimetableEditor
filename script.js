@@ -22,6 +22,9 @@ function createEditableInput(cell, defaultValue, isNumeric, callback) {
         if (e.key === 'Enter') {
             this.blur();
         }
+        if (e.key === 'Escape') {
+            cell.removeChild(this);
+        }
     });
 }
 
