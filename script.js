@@ -193,16 +193,21 @@ function addNewColumn(beforeLast = false) {
     const newHeader = document.createElement('th');
     newHeader.addEventListener('dblclick', handleTableHeaderCellDblClick);
 
-    // Add new cells in each row
-    document.querySelectorAll('table tr').forEach(row => {
+    // Insert the new header
+    const headerRow = document.querySelector('table tr:first-child');
+    if (beforeLast && headerRow.lastElementChild) {
+        headerRow.insertBefore(newHeader, headerRow.lastElementChild);
+    } else {
+        headerRow.appendChild(newHeader);
+    }
+
+    // Add new cells in each body row
+    document.querySelectorAll('table tr:not(:first-child)').forEach(row => {
         const newCell = document.createElement('td');
         newCell.addEventListener('dblclick', handleTableBodyCellDblClick);
-        if (beforeLast) {
-            const lastCell = row.lastElementChild;
-            row.insertBefore(newHeader, lastCell);
-            row.insertBefore(newCell, lastCell);
+        if (beforeLast && row.lastElementChild) {
+            row.insertBefore(newCell, row.lastElementChild);
         } else {
-            row.appendChild(newHeader);
             row.appendChild(newCell);
         }
     });
