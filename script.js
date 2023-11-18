@@ -125,8 +125,12 @@ function parseHashAndRestoreTimetable() {
 
     const headerTexts = hashParts[0].split('|').map(text => decodeURIComponent(text));
     headerTexts.forEach((text, index) => {
-        const header = document.querySelector(`table th:nth-child(${index + 2})`);
-        header.innerText = text;
+        let header = document.querySelector(`table th:nth-child(${index + 2})`);
+        if (!header) {
+            addNewColumn(); // Add a column if not enough columns
+            header = document.querySelector(`table th:nth-child(${index + 2})`);
+        }
+        header.innerText = text || ''; // Set header text, allowing empty
     });
 
     const timetable = hashParts[1].split(';');
@@ -139,7 +143,11 @@ function parseHashAndRestoreTimetable() {
         if (!row) return;
 
         minutesGroups.forEach((group, index) => {
-            const minuteCell = row.cells[index + 1];
+            let minuteCell = row.cells[index + 1];
+            if (!minuteCell) {
+                addEmptyColumn(); // Add a column if not enough columns
+                minuteCell = row.cells[index + 1];
+            }
             minuteCell.innerHTML = ''; // Clear the cell before inserting new data
 
             const uniqueMinutes = [...new Set(group.split(',')
@@ -157,6 +165,9 @@ function parseHashAndRestoreTimetable() {
             });
         });
     });
+
+    // Ensure the last column with the plus button is always present
+    addEmptyColumn();
 }
 
 function addNewColumn() {
@@ -176,3 +187,16 @@ function addNewColumn() {
 }
 
 document.getElementById('add-column').addEventListener('click', addNewColumn);
+
+function addEmptyColumn() {
+    // Add new header
+    const newHeader = document.createElement('th');
+    newHeader.innerText = ''; // Empty header for non-editable column
+
+    // Add new cells in each row
+    document.querySelectorAll('table tr').forEach(row => {
+        const newCell = document.createElement('td');
+        newCell.innerText = ''; // Empty cells for non-editable column
+        row.appendChild(newCell);
+    });
+}
