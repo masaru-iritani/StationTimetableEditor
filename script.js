@@ -34,6 +34,14 @@ function handleTableBodyCellDblClick(e) {
         const inputValue = parseInt(this.value);
         if (inputValue >= 60) return;
         const normalizedValue = inputValue.toString().padStart(2, '0');
+
+        // Check if the number already exists in the cell
+        if (Array.from(this.parentElement.querySelectorAll('span'))
+                 .some(span => span.textContent.startsWith(normalizedValue))) {
+            this.parentElement.removeChild(this);
+            return;
+        }
+
         const span = document.createElement('span');
         span.textContent = normalizedValue + ', ';
         span.addEventListener('dblclick', handleSpanDblClick);
