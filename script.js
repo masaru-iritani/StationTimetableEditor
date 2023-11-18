@@ -188,17 +188,41 @@ function parseHashAndRestoreTimetable() {
     addEmptyColumn();
 }
 
+function addNewColumn(beforeLast = false) {
+    // Add new header
+    const newHeader = document.createElement('th');
+    newHeader.addEventListener('dblclick', handleTableHeaderCellDblClick);
+
+    // Add new cells in each row
+    document.querySelectorAll('table tr').forEach(row => {
+        const newCell = document.createElement('td');
+        newCell.addEventListener('dblclick', handleTableBodyCellDblClick);
+        if (beforeLast) {
+            const lastCell = row.lastElementChild;
+            row.insertBefore(newHeader, lastCell);
+            row.insertBefore(newCell, lastCell);
+        } else {
+            row.appendChild(newHeader);
+            row.appendChild(newCell);
+        }
+    });
+}
+
+function clearEditableColumns() {
+    document.querySelectorAll('table th:not(:first-child, :last-child)').forEach(th => th.remove());
+    document.querySelectorAll('table td:not(:first-child, :last-child)').forEach(td => td.remove());
+}
+
 function parseHashAndRestoreTimetable() {
     const hashParts = window.location.hash.slice(1).split('#');
     if (hashParts.length < 2) return;
 
+    clearEditableColumns(); // Clear existing columns before restoring
+
     const headerTexts = hashParts[0].split('|').map(text => decodeURIComponent(text));
     headerTexts.forEach((text, index) => {
-        let header = document.querySelector(`table th:nth-child(${index + 2})`);
-        if (!header) {
-            addNewColumn(); // Add a column if not enough columns
-            header = document.querySelector(`table th:nth-child(${index + 2})`);
-        }
+        addNewColumn(true); // Add a column before the last one
+        const header = document.querySelector(`table th:nth-child(${index + 2})`);
         header.innerText = text || ''; // Set header text, allowing empty
     });
 
@@ -212,11 +236,7 @@ function parseHashAndRestoreTimetable() {
         if (!row) return;
 
         minutesGroups.forEach((group, index) => {
-            let minuteCell = row.cells[index + 1];
-            if (!minuteCell) {
-                addEmptyColumn(); // Add a column if not enough columns
-                minuteCell = row.cells[index + 1];
-            }
+            const minuteCell = row.cells[index + 1];
             minuteCell.innerHTML = ''; // Clear the cell before inserting new data
 
             const uniqueMinutes = [...new Set(group.split(',')
@@ -237,22 +257,6 @@ function parseHashAndRestoreTimetable() {
 
     // Ensure the last column with the plus button is always present
     addEmptyColumn();
-}
-
-function addNewColumn() {
-    // Add new header
-    const newHeader = document.createElement('th');
-    newHeader.addEventListener('dblclick', handleTableHeaderCellDblClick);
-    const lastHeader = document.querySelector('table tr th:last-child');
-    lastHeader.parentNode.insertBefore(newHeader, lastHeader);
-
-    // Add new cells in each row
-    document.querySelectorAll('table tr:not(:first-child)').forEach(row => {
-        const newCell = document.createElement('td');
-        newCell.addEventListener('dblclick', handleTableBodyCellDblClick);
-        const lastCell = row.lastElementChild;
-        row.insertBefore(newCell, lastCell);
-    });
 }
 
 document.getElementById('add-column').addEventListener('click', addNewColumn);
