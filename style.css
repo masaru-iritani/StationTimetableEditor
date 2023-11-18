@@ -22,8 +22,8 @@ footer {
     padding: 10px 0;
 }
 
-table td:nth-child(2) {
-    width: 150px;
+table td span {
+    margin-right: 5px;
 }
 
 footer a, footer a:visited {
