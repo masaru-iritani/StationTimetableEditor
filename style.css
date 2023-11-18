@@ -39,6 +39,10 @@ table td:nth-child(2) span {
     margin-right: 5px;
 }
 
+table td:not(:nth-child(2)) span {
+    margin-right: 5px;
+}
+
 #add-column {
     background-color: #4CAF50;
     color: white;
