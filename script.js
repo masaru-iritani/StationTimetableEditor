@@ -63,13 +63,20 @@ function handleSpanDblClick(e) {
     const cell = this.parentElement;
     const oldSpan = this;
     createEditableInput(cell, oldSpan.textContent, true, function() {
-        const inputValue = parseInt(this.value);
-        if (inputValue >= 60) {
+        const inputValue = this.value.trim();
+        if (inputValue === '') {
+            cell.removeChild(oldSpan);
+            cell.removeChild(this);
+            updateURLHash(cell);
+            return;
+        }
+        const parsedValue = parseInt(inputValue);
+        if (parsedValue >= 60) {
             oldSpan.style.display = 'inline'; // Show the original span if input is invalid
             cell.removeChild(this);
             return;
         }
-        const normalizedValue = inputValue.toString().padStart(2, '0');
+        const normalizedValue = parsedValue.toString().padStart(2, '0');
         const newSpan = document.createElement('span');
         newSpan.textContent = normalizedValue;
         newSpan.addEventListener('dblclick', handleSpanDblClick);
