@@ -34,3 +34,7 @@ footer a, footer a:visited {
 table {
     margin: 20px auto;
 }
+
+table td:nth-child(2) span {
+    margin-right: 5px;
+}
