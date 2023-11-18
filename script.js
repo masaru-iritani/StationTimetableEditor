@@ -146,3 +146,21 @@ function parseHashAndRestoreTimetable() {
         });
     });
 }
+
+function addNewColumn() {
+    // Add new header
+    const newHeader = document.createElement('th');
+    newHeader.addEventListener('dblclick', handleTableHeaderCellDblClick);
+    const lastHeader = document.querySelector('table tr th:last-child');
+    lastHeader.parentNode.insertBefore(newHeader, lastHeader);
+
+    // Add new cells in each row
+    document.querySelectorAll('table tr:not(:first-child)').forEach(row => {
+        const newCell = document.createElement('td');
+        newCell.addEventListener('dblclick', handleTableBodyCellDblClick);
+        const lastCell = row.lastElementChild;
+        row.insertBefore(newCell, lastCell);
+    });
+}
+
+document.getElementById('add-column').addEventListener('click', addNewColumn);
