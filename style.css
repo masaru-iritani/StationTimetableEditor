@@ -42,7 +42,7 @@ table td:nth-child(2) span {
 #add-column {
     background-color: #4CAF50;
     color: white;
-    border: none;
+    border: 1px solid white; /* Add a transparent border */
     cursor: pointer;
     padding: 5px 10px;
     text-align: center;
