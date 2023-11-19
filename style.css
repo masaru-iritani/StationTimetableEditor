@@ -102,7 +102,7 @@ table:hover::after {
 
 #table-container::after {
     content: '';
-    display: none;
+    display: none; /* Ensure the circle is not displayed by default */
     position: absolute;
     bottom: 0;
     left: 50%;
