@@ -100,8 +100,9 @@ table:hover::after {
     padding-bottom: 20px; /* Add padding to reserve space for the plus button */
 }
 
-#table-container.highlight-bottom::after {
-    content: '+';
+#table-container::after {
+    content: '';
+    display: none;
     position: absolute;
     bottom: 0;
     left: 50%;
@@ -115,4 +116,8 @@ table:hover::after {
     border-radius: 50%;
     font-size: 16px;
     border: 2px solid white;
+}
+
+#table-container.highlight-bottom::after {
+    display: block; /* Only display the plus button when in highlight-bottom state */
 }
