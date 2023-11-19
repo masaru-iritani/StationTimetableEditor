@@ -312,6 +312,7 @@ function addNewRow() {
             newCell.addEventListener('dblclick', handleTableBodyCellDblClick);
         }
     }
+    updateURLHash(newRow);
 }
 
 document.getElementById('table-container').addEventListener('mousemove', function(event) {
