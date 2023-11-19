@@ -346,11 +346,16 @@ document.getElementById('table-container').addEventListener('click', function(ev
 
 const tableContainer = document.getElementById('table-container');
 const table = document.querySelector('#table-container table');
+const threshold = 30; // pixels, adjust as needed for sensitivity
 
-tableContainer.addEventListener('mouseenter', () => {
-    table.classList.add('show-plus');
+tableContainer.addEventListener('mousemove', (event) => {
+    const rect = table.getBoundingClientRect();
+    const distanceFromBottom = rect.bottom - event.clientY;
+
+    if (distanceFromBottom >= 0 && distanceFromBottom <= threshold) {
+        table.classList.add('show-plus');
+    } else {
+        table.classList.remove('show-plus');
+    }
 });
 
-tableContainer.addEventListener('mouseleave', () => {
-    table.classList.remove('show-plus');
-});
