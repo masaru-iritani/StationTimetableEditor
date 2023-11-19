@@ -359,3 +359,9 @@ tableContainer.addEventListener('mousemove', (event) => {
         table.classList.remove('show-plus');
     }
 });
+
+table.addEventListener('click', (event) => {
+    if (table.classList.contains('show-plus')) {
+        addNewRow();
+    }
+});
