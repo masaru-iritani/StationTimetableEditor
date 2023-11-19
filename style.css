@@ -95,7 +95,7 @@ table:hover::after {
     border: 2px solid white;
 }
 
-#table-container.highlight-bottom::after {
+.highlight-bottom::after {
     content: '+';
     position: absolute;
     bottom: -20px;
