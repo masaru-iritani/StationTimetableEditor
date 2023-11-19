@@ -296,3 +296,20 @@ function parseHashAndRestoreTimetable() {
 }
 
 document.getElementById('add-column').addEventListener('click', addNewColumn);
+
+function addNewRow() {
+    const table = document.querySelector('table');
+    const newRow = table.insertRow();
+    const numColumns = table.rows[0].cells.length;
+
+    for (let i = 0; i < numColumns; i++) {
+        const newCell = newRow.insertCell();
+        if (i === 0) {
+            newCell.textContent = table.rows.length - 1; // Assuming first column is for numbering
+        } else if (i < numColumns - 1) {
+            newCell.addEventListener('dblclick', handleTableBodyCellDblClick);
+        }
+    }
+}
+
+document.querySelector('table::after').addEventListener('click', addNewRow);
