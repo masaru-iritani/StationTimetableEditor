@@ -346,16 +346,16 @@ document.getElementById('table-container').addEventListener('click', function(ev
 
 const tableContainer = document.getElementById('table-container');
 const table = document.querySelector('#table-container table');
-const threshold = 30; // pixels, adjust as needed for sensitivity
+const threshold = 30; // pixels for vertical proximity to the bottom
 
 tableContainer.addEventListener('mousemove', (event) => {
     const rect = table.getBoundingClientRect();
     const distanceFromBottom = rect.bottom - event.clientY;
+    const isWithinHorizontalBounds = event.clientX >= rect.left && event.clientX <= rect.right;
 
-    if (distanceFromBottom >= 0 && distanceFromBottom <= threshold) {
+    if (distanceFromBottom >= 0 && distanceFromBottom <= threshold && isWithinHorizontalBounds) {
         table.classList.add('show-plus');
     } else {
         table.classList.remove('show-plus');
     }
 });
-
