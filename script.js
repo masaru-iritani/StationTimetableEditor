@@ -314,12 +314,12 @@ function addNewRow() {
     }
 }
 
-document.querySelector('table').addEventListener('click', function(event) {
-    const tableRect = this.getBoundingClientRect();
-    const tableBottom = tableRect.bottom;
+document.getElementById('table-container').addEventListener('click', function(event) {
+    // Check if the click is outside the table
+    const tableRect = this.querySelector('table').getBoundingClientRect();
     const clickY = event.clientY;
 
-    if (clickY >= tableBottom - 20 && clickY <= tableBottom) {
+    if (clickY > tableRect.bottom) {
         addNewRow();
     }
 });
