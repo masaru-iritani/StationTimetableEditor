@@ -317,8 +317,9 @@ function addNewRow() {
 document.getElementById('table-container').addEventListener('mousemove', function(event) {
     const tableRect = this.querySelector('table').getBoundingClientRect();
     const mouseY = event.clientY;
+    const bottomBorderRange = 20; // Range in pixels for activation
 
-    if (mouseY > tableRect.bottom && mouseY <= tableRect.bottom + 20) {
+    if (mouseY > tableRect.bottom - bottomBorderRange && mouseY <= tableRect.bottom) {
         this.classList.add('highlight-bottom');
     } else {
         this.classList.remove('highlight-bottom');
@@ -329,7 +330,7 @@ document.getElementById('table-container').addEventListener('click', function(ev
     const tableRect = this.querySelector('table').getBoundingClientRect();
     const clickY = event.clientY;
 
-    if (clickY > tableRect.bottom) {
+    if (clickY > tableRect.bottom - 20 && clickY <= tableRect.bottom) {
         addNewRow();
     }
 });
