@@ -317,18 +317,19 @@ function addNewRow() {
 document.getElementById('table-container').addEventListener('mousemove', function(event) {
     const tableRect = this.querySelector('table').getBoundingClientRect();
     const mouseY = event.clientY;
-    const mouseX = event.clientX;
     const bottomBorderRange = 20; // Range in pixels for activation vertically
-    const horizontalRange = tableRect.right - tableRect.left; // Horizontal bounds of the table
 
-    // Check if the mouse is within the horizontal bounds of the table and near the bottom border
-    if (mouseY > tableRect.bottom - bottomBorderRange && mouseY <= tableRect.bottom &&
-        mouseX >= tableRect.left && mouseX <= tableRect.right) {
+    if (mouseY > tableRect.bottom - bottomBorderRange && mouseY <= tableRect.bottom) {
         this.classList.add('highlight-bottom');
     } else {
         this.classList.remove('highlight-bottom');
     }
 });
+
+document.getElementById('table-container').addEventListener('mouseleave', function() {
+    this.classList.remove('highlight-bottom');
+});
+
 
 document.getElementById('table-container').addEventListener('click', function(event) {
     const tableRect = this.querySelector('table').getBoundingClientRect();
@@ -341,8 +342,4 @@ document.getElementById('table-container').addEventListener('click', function(ev
         clickX >= tableRect.left && clickX <= tableRect.right) {
         addNewRow();
     }
-});
-
-document.getElementById('table-container').addEventListener('mouseleave', function() {
-    this.classList.remove('highlight-bottom');
 });
