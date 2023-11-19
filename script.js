@@ -360,7 +360,7 @@ tableContainer.addEventListener('mousemove', (event) => {
     }
 });
 
-table.addEventListener('click', (event) => {
+tableContainer.addEventListener('click', (event) => {
     if (table.classList.contains('show-plus')) {
         addNewRow();
     }
