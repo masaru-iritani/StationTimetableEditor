@@ -74,38 +74,11 @@ table td:first-child, table td:last-child {
     min-width: 50px; /* Reduce the width for the first and last columns */
 }
 
-table {
-    position: relative;
-}
-
-table:hover::after {
-    content: '+'; /* Revive the plus button */
-    display: block; /* Ensure it's displayed on table hover */
-    position: absolute;
-    bottom: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #4CAF50;
-    color: white;
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    line-height: 20px;
-    border-radius: 50%;
-    font-size: 16px;
-    border: 2px solid white;
-}
-
-#table-container {
-    position: relative;
-    padding-bottom: 30px; /* Increase padding to create a hoverable area below the table */
-}
-
-#table-container:hover::after {
+table.show-plus::after {
     content: '+'; /* Plus button content */
-    display: block; /* Show the plus button on hover over the container */
+    display: block; /* Show the plus button when the class is present */
     position: absolute;
-    bottom: 10px; /* Position near the bottom of the container */
+    bottom: -30px; /* Position below the table */
     left: 50%;
     transform: translateX(-50%);
     background-color: #4CAF50;

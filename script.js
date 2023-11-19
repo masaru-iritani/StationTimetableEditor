@@ -343,3 +343,14 @@ document.getElementById('table-container').addEventListener('click', function(ev
         addNewRow();
     }
 });
+
+const tableContainer = document.getElementById('table-container');
+const table = document.querySelector('#table-container table');
+
+tableContainer.addEventListener('mouseenter', () => {
+    table.classList.add('show-plus');
+});
+
+tableContainer.addEventListener('mouseleave', () => {
+    table.classList.remove('show-plus');
+});
