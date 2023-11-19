@@ -94,3 +94,20 @@ table:hover::after {
     font-size: 16px;
     border: 2px solid white;
 }
+
+#table-container.highlight-bottom::after {
+    content: '+';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4CAF50;
+    color: white;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+    border-radius: 50%;
+    font-size: 16px;
+    border: 2px solid white;
+}

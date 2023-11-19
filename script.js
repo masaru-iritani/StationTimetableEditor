@@ -314,12 +314,26 @@ function addNewRow() {
     }
 }
 
+document.getElementById('table-container').addEventListener('mousemove', function(event) {
+    const tableRect = this.querySelector('table').getBoundingClientRect();
+    const mouseY = event.clientY;
+
+    if (mouseY > tableRect.bottom && mouseY <= tableRect.bottom + 20) {
+        this.classList.add('highlight-bottom');
+    } else {
+        this.classList.remove('highlight-bottom');
+    }
+});
+
 document.getElementById('table-container').addEventListener('click', function(event) {
-    // Check if the click is outside the table
     const tableRect = this.querySelector('table').getBoundingClientRect();
     const clickY = event.clientY;
 
     if (clickY > tableRect.bottom) {
         addNewRow();
     }
+});
+
+document.getElementById('table-container').addEventListener('mouseleave', function() {
+    this.classList.remove('highlight-bottom');
 });
