@@ -312,4 +312,12 @@ function addNewRow() {
     }
 }
 
-document.querySelector('table::after').addEventListener('click', addNewRow);
+document.querySelector('table').addEventListener('click', function(event) {
+    const tableRect = this.getBoundingClientRect();
+    const tableBottom = tableRect.bottom;
+    const clickY = event.clientY;
+
+    if (clickY >= tableBottom - 20 && clickY <= tableBottom) {
+        addNewRow();
+    }
+});
