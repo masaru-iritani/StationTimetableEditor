@@ -79,8 +79,8 @@ table {
 }
 
 table:hover::after {
-    content: '';
-    display: none; /* Prevent the circle from appearing on table hover */
+    content: '+'; /* Revive the plus button */
+    display: block; /* Ensure it's displayed on table hover */
     position: absolute;
     bottom: -20px;
     left: 50%;
@@ -99,26 +99,4 @@ table:hover::after {
 #table-container {
     position: relative;
     padding-bottom: 20px; /* Add padding to reserve space for the plus button */
-}
-
-#table-container::after {
-    content: '';
-    display: none; /* Ensure the circle is not displayed by default */
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%) translateY(100%);
-    background-color: #4CAF50;
-    color: white;
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    line-height: 20px;
-    border-radius: 50%;
-    font-size: 16px;
-    border: 2px solid white;
-}
-
-#table-container.highlight-bottom::after {
-    display: block; /* Only display the plus button when in highlight-bottom state */
 }
