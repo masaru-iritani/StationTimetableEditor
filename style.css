@@ -79,7 +79,8 @@ table {
 }
 
 table:hover::after {
-    content: '+';
+    content: '';
+    display: none; /* Prevent the circle from appearing on table hover */
     position: absolute;
     bottom: -20px;
     left: 50%;
