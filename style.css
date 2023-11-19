@@ -101,14 +101,9 @@ table:hover::after {
     padding-bottom: 30px; /* Increase padding to create a hoverable area below the table */
 }
 
-#table-container:hover::after,
-#table-container:hover table {
-    border-bottom: 3px solid #4CAF50; /* Highlight bottom border of the table */
-}
-
 #table-container:hover::after {
     content: '+'; /* Plus button content */
-    display: block; /* Show the plus button on hover */
+    display: block; /* Show the plus button on hover over the container */
     position: absolute;
     bottom: 10px; /* Position near the bottom of the container */
     left: 50%;
