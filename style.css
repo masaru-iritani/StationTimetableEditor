@@ -73,3 +73,24 @@ table th:first-child, table th:last-child,
 table td:first-child, table td:last-child {
     min-width: 50px; /* Reduce the width for the first and last columns */
 }
+
+table {
+    position: relative;
+}
+
+table:hover::after {
+    content: '+';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4CAF50;
+    color: white;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+    border-radius: 50%;
+    font-size: 16px;
+    border: 2px solid white;
+}
