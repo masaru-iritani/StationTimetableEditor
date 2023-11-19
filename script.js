@@ -299,13 +299,15 @@ document.getElementById('add-column').addEventListener('click', addNewColumn);
 
 function addNewRow() {
     const table = document.querySelector('table');
+    const lastRow = table.rows[table.rows.length - 1];
     const newRow = table.insertRow();
-    const numColumns = table.rows[0].cells.length;
+    const numColumns = lastRow.cells.length;
 
     for (let i = 0; i < numColumns; i++) {
         const newCell = newRow.insertCell();
         if (i === 0) {
-            newCell.textContent = table.rows.length - 1; // Assuming first column is for numbering
+            const lastHour = parseInt(lastRow.cells[0].textContent);
+            newCell.textContent = isNaN(lastHour) ? 1 : lastHour + 1; // Increment the hour by 1
         } else if (i < numColumns - 1) {
             newCell.addEventListener('dblclick', handleTableBodyCellDblClick);
         }
