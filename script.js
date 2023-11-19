@@ -334,6 +334,7 @@ document.getElementById('table-container').addEventListener('click', function(ev
     const tableRect = this.querySelector('table').getBoundingClientRect();
     const clickY = event.clientY;
     const clickX = event.clientX;
+    const bottomBorderRange = 20; // Range in pixels for activation vertically
 
     // Check if the click is within the horizontal bounds of the table and near the bottom border
     if (clickY > tableRect.bottom - bottomBorderRange && clickY <= tableRect.bottom &&
