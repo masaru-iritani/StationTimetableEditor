@@ -111,10 +111,17 @@ tr:last-child.highlight-left {
 
 tr:last-child.highlight-left td:first-child::before {
     content: '\2716'; /* Unicode cross symbol */
-    color: red;
-    font-size: 20px;
-    position: absolute;
-    left: -30px;
-    transform: translateY(-50%);
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;
     cursor: pointer;
+    border-radius: 8px;
+    position: absolute;
+    left: -40px;
+    top: 50%;
+    transform: translateY(-50%);
 }
