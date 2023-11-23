@@ -334,21 +334,27 @@ tableContainer.addEventListener('mousemove', (event) => {
 document.getElementById('table-container').addEventListener('mousemove', function(event) {
     const mouseX = event.clientX;
     const mouseY = event.clientY;
-    const tableRect = this.querySelector('table').getBoundingClientRect();
-    const lastRow = this.querySelector('table tr:last-child');
+    const table = this.querySelector('table');
+    const tableRect = table.getBoundingClientRect();
+    const lastRow = table.querySelector('tr:last-child');
     const lastRowRect = lastRow.getBoundingClientRect();
     const isEmptyRow = Array.from(lastRow.cells).slice(1).every(cell => !cell.textContent.trim());
     const leftBorderRange = 20; // Range in pixels for activation horizontally
     const distanceToBorder = Math.abs(mouseX - tableRect.left);
-    const bottomBorderRange = 20; // Range in pixels for activation vertically
-    const isNearBottomBorder = mouseY > tableRect.bottom - bottomBorderRange && mouseY <= tableRect.bottom;
 
-    if (!isNearBottomBorder && distanceToBorder <= leftBorderRange && mouseY >= lastRowRect.top && mouseY <= lastRowRect.bottom && isEmptyRow) {
+    // Suppress remove button if add button is active
+    if (table.classList.contains('show-plus')) {
+        lastRow.classList.remove('highlight-left');
+        return;
+    }
+
+    if (distanceToBorder <= leftBorderRange && mouseY >= lastRowRect.top && mouseY <= lastRowRect.bottom && isEmptyRow) {
         lastRow.classList.add('highlight-left');
     } else {
         lastRow.classList.remove('highlight-left');
     }
 });
+
 
 tableContainer.addEventListener('click', (event) => {
     if (table.classList.contains('show-plus')) {
