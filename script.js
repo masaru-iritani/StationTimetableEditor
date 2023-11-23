@@ -333,6 +333,7 @@ tableContainer.addEventListener('mousemove', (event) => {
 
 document.getElementById('table-container').addEventListener('mousemove', function(event) {
     const mouseX = event.clientX;
+    const mouseY = event.clientY;
     const tableRect = this.querySelector('table').getBoundingClientRect();
     const lastRow = this.querySelector('table tr:last-child');
     const lastRowRect = lastRow.getBoundingClientRect();
