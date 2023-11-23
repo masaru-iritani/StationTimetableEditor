@@ -109,14 +109,12 @@ tr:last-child.highlight-left {
     border-left: 4px solid red; /* Red color for highlighting */
 }
 
-tr:last-child.highlight-left::before {
+tr:last-child.highlight-left td:first-child::before {
     content: '✖'; /* Cross symbol */
     color: red;
     font-size: 20px;
     position: absolute;
     left: -30px;
-    top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
-    display: block;
 }
