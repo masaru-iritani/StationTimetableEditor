@@ -315,19 +315,6 @@ function addNewRow() {
     updateURLHash(newRow);
 }
 
-document.getElementById('table-container').addEventListener('click', function(event) {
-    const tableRect = this.querySelector('table').getBoundingClientRect();
-    const clickY = event.clientY;
-    const clickX = event.clientX;
-    const bottomBorderRange = 20; // Range in pixels for activation vertically
-
-    // Check if the click is within the horizontal bounds of the table and near the bottom border
-    if (clickY > tableRect.bottom - bottomBorderRange && clickY <= tableRect.bottom &&
-        clickX >= tableRect.left && clickX <= tableRect.right) {
-        addNewRow();
-    }
-});
-
 const tableContainer = document.getElementById('table-container');
 const table = document.querySelector('#table-container table');
 const threshold = 30; // pixels for proximity to the bottom border
