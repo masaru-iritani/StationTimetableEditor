@@ -315,23 +315,6 @@ function addNewRow() {
     updateURLHash(newRow);
 }
 
-document.getElementById('table-container').addEventListener('mousemove', function(event) {
-    const tableRect = this.querySelector('table').getBoundingClientRect();
-    const mouseY = event.clientY;
-    const bottomBorderRange = 20; // Range in pixels for activation vertically
-
-    if (mouseY > tableRect.bottom - bottomBorderRange && mouseY <= tableRect.bottom) {
-        this.classList.add('highlight-bottom');
-    } else {
-        this.classList.remove('highlight-bottom');
-    }
-});
-
-document.getElementById('table-container').addEventListener('mouseleave', function() {
-    this.classList.remove('highlight-bottom');
-});
-
-
 document.getElementById('table-container').addEventListener('click', function(event) {
     const tableRect = this.querySelector('table').getBoundingClientRect();
     const clickY = event.clientY;
