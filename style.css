@@ -124,4 +124,7 @@ tr:last-child.highlight-left td:first-child::before {
     left: -40px;
     top: 50%;
     transform: translateY(-50%);
+    width: 24px; /* Aligning size with the plus button */
+    height: 24px; /* Aligning size with the plus button */
+    line-height: 24px; /* Aligning size with the plus button */
 }
