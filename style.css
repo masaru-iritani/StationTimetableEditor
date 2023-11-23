@@ -118,4 +118,5 @@ tr:last-child.highlight-left::before {
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
+    display: block;
 }
