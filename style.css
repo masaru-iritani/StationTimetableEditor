@@ -104,3 +104,7 @@ table.show-plus::after {
 table.show-plus {
     border-bottom: 4px solid #4CAF50; /* Green color matching the plus button */
 }
+
+tr:last-child.highlight-left {
+    border-left: 4px solid #4CAF50; /* Green color for highlighting */
+}
