@@ -340,8 +340,10 @@ document.getElementById('table-container').addEventListener('mousemove', functio
     const isEmptyRow = Array.from(lastRow.cells).slice(1).every(cell => !cell.textContent.trim());
     const leftBorderRange = 20; // Range in pixels for activation horizontally
     const distanceToBorder = Math.abs(mouseX - tableRect.left);
+    const bottomBorderRange = 20; // Range in pixels for activation vertically
+    const isNearBottomBorder = mouseY > tableRect.bottom - bottomBorderRange && mouseY <= tableRect.bottom;
 
-    if (distanceToBorder <= leftBorderRange && mouseY >= lastRowRect.top && mouseY <= lastRowRect.bottom && isEmptyRow) {
+    if (!isNearBottomBorder && distanceToBorder <= leftBorderRange && mouseY >= lastRowRect.top && mouseY <= lastRowRect.bottom && isEmptyRow) {
         lastRow.classList.add('highlight-left');
     } else {
         lastRow.classList.remove('highlight-left');
