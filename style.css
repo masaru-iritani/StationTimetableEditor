@@ -111,7 +111,7 @@ tr:last-child.highlight-left {
 
 tr:last-child.highlight-left td:first-child::before {
     content: '\2716'; /* Unicode cross symbol */
-    background-color: #4CAF50;
+    background-color: red;
     color: white;
     border: none;
     padding: 5px 10px;
