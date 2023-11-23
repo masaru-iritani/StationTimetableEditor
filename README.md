@@ -1,35 +1,35 @@
-# Single Page App (SPA) - Time Table Manager
+# Station Timetable Editor
 
 ## Description
-This SPA (Single Page Application) allows users to manage a timetable effectively. It features a dynamic table where users can add, edit, and delete time slots. The application is designed to be intuitive and user-friendly, suitable for anyone needing to organize their schedule or activities.
+The "Station Timetable Editor" is a Single Page Application (SPA) designed for efficient management and editing of station timetables. This user-friendly application caters to the needs of individuals and organizations managing train or bus station schedules.
 
 ## Features
 
-- **Dynamic Table Manipulation**: Users can add new rows to the table, edit existing entries, and delete rows as needed.
-- **Interactive UI Elements**: The application includes interactive elements like a plus button for adding rows and a remove button for deleting rows.
-- **Accessibility and Responsiveness**: The UI is designed with accessibility in mind, ensuring ease of use on various devices and screen sizes.
-- **URL Hash Updates**: The URL hash updates dynamically as new rows are added, allowing for easy bookmarking and sharing of specific table states.
+- **Dynamic Timetable Editing**: Users can easily add, modify, and delete time slots in the timetable.
+- **User-Friendly Interface**: The application includes interactive elements such as a plus button for adding new time slots and a remove button for deleting unnecessary entries.
+- **Accessibility and Responsiveness**: Designed with accessibility in mind, the app ensures a seamless experience across different devices and screen sizes.
+- **Real-Time URL Hash Updates**: As changes are made to the timetable, the URL hash updates in real-time, enabling easy bookmarking and sharing of specific timetable states.
 
 ## Usage
 
-- **Adding a Row**: Hover near the bottom of the table to reveal the plus button. Click it to add a new row.
-- **Editing Entries**: Double-click on a table cell to edit its content.
-- **Deleting a Row**: Hover near the left border of the last row. If the row is empty (except for the first column), a red remove button will appear. Click it to delete the row.
-- **Navigating Table States**: The URL hash changes as you modify the table. You can bookmark or share the URL to maintain or share the current state of the table.
+- **Adding a Time Slot**: Hover near the bottom of the timetable to display the plus button and click it to add a new slot.
+- **Editing Time Slots**: Double-click on a timetable cell to edit its contents.
+- **Deleting a Time Slot**: Hover near the left border of the last row. If it's empty (except for the first column), a red remove button will appear for deletion.
+- **Sharing Timetable States**: Use the dynamically updated URL hash to bookmark or share the current state of the timetable.
 
 ## Browser Compatibility
-The application is compatible with modern web browsers like Chrome, Firefox, Safari, and Edge.
+Compatible with modern web browsers like Chrome, Firefox, Safari, and Edge.
 
 ## Accessibility
-The application is designed with accessibility in mind, featuring high-contrast elements and keyboard navigable interfaces.
+The app features high-contrast elements and a keyboard-navigable interface, prioritizing accessibility.
 
 ## License
 This project is licensed under the CC0 License - see the LICENSE.md file for details.
 
 ## Contributing
-Contributions to this project are welcome. Please fork the repository and submit a pull request with your changes.
+We welcome contributions. Please fork the repository and submit your changes via a pull request.
 
 ## Contact
-For any queries or contributions, please contact the project maintainer at [email@example.com](mailto:email@example.com).
+For inquiries or contributions, reach out to the project maintainer at [email@example.com](mailto:email@example.com).
 
-Thank you for using our Time Table Manager!
+Thank you for using Station Timetable Editor!
