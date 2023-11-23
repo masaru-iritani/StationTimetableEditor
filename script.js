@@ -353,3 +353,10 @@ tableContainer.addEventListener('click', (event) => {
         addNewRow();
     }
 });
+
+document.getElementById('table-container').addEventListener('click', function(event) {
+    const lastRow = this.querySelector('table tr:last-child');
+    if (lastRow.classList.contains('highlight-left')) {
+        lastRow.remove();
+    }
+});
