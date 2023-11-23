@@ -23,6 +23,9 @@ Compatible with modern web browsers like Chrome, Firefox, Safari, and Edge.
 ## Accessibility
 The app is designed with high-contrast elements and a keyboard-navigable interface. Note: Keyboard navigation is currently planned but not yet implemented.
 
+## Project Creation and Updates
+This project was generated and periodically updated with the support of ChatGPT. Masaru Iritani created a customized GPT (GPT SPA Coder) to generate and update the codes for this app based on specific instructions and requirements.
+
 ## License
 This project is licensed under the CC0 License - see the LICENSE.md file for details.
 
