@@ -332,22 +332,20 @@ tableContainer.addEventListener('mousemove', (event) => {
 });
 
 document.getElementById('table-container').addEventListener('mousemove', function(event) {
-    const tableRect = this.querySelector('table').getBoundingClientRect();
     const mouseX = event.clientX;
-    const mouseY = event.clientY;
-    const leftBorderRange = 20; // Range in pixels for activation horizontally
+    const tableRect = this.querySelector('table').getBoundingClientRect();
     const lastRow = this.querySelector('table tr:last-child');
     const lastRowRect = lastRow.getBoundingClientRect();
     const isEmptyRow = Array.from(lastRow.cells).slice(1).every(cell => !cell.textContent.trim());
+    const leftBorderRange = 20; // Range in pixels for activation horizontally
+    const distanceToBorder = Math.abs(mouseX - tableRect.left);
 
-    if (mouseX > tableRect.left - leftBorderRange && mouseX <= tableRect.left &&
-        mouseY >= lastRowRect.top && mouseY <= lastRowRect.bottom && isEmptyRow) {
+    if (distanceToBorder <= leftBorderRange && mouseY >= lastRowRect.top && mouseY <= lastRowRect.bottom && isEmptyRow) {
         lastRow.classList.add('highlight-left');
     } else {
         lastRow.classList.remove('highlight-left');
     }
 });
-
 
 tableContainer.addEventListener('click', (event) => {
     if (table.classList.contains('show-plus')) {
