@@ -114,17 +114,17 @@ tr:last-child.highlight-left td:first-child::before {
     background-color: red;
     color: white;
     border: none;
-    padding: 5px 10px;
+    padding: 0;
     text-align: center;
     display: inline-block;
     font-size: 16px;
     cursor: pointer;
-    border-radius: 8px;
+    border-radius: 50%; /* Making the button circular */
     position: absolute;
     left: -40px;
     top: 50%;
     transform: translateY(-50%);
-    width: 24px; /* Aligning size with the plus button */
-    height: 24px; /* Aligning size with the plus button */
-    line-height: 24px; /* Aligning size with the plus button */
+    width: 24px; /* Size of the button */
+    height: 24px; /* Size of the button */
+    line-height: 24px; /* Align text vertically */
 }
