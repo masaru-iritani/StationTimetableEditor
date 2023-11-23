@@ -21,7 +21,7 @@ The "Station Timetable Editor" is a Single Page Application (SPA) designed for e
 Compatible with modern web browsers like Chrome, Firefox, Safari, and Edge.
 
 ## Accessibility
-The app features high-contrast elements and a keyboard-navigable interface, prioritizing accessibility.
+The app is designed with high-contrast elements and a keyboard-navigable interface. Note: Keyboard navigation is currently planned but not yet implemented.
 
 ## License
 This project is licensed under the CC0 License - see the LICENSE.md file for details.
