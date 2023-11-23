@@ -110,7 +110,7 @@ tr:last-child.highlight-left {
 }
 
 tr:last-child.highlight-left td:first-child::before {
-    content: '✖'; /* Cross symbol */
+    content: '\2716'; /* Unicode cross symbol */
     color: red;
     font-size: 20px;
     position: absolute;
