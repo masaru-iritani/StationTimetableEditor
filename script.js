@@ -331,6 +331,21 @@ tableContainer.addEventListener('mousemove', (event) => {
     }
 });
 
+document.getElementById('table-container').addEventListener('mousemove', function(event) {
+    const tableRect = this.querySelector('table').getBoundingClientRect();
+    const mouseY = event.clientY;
+    const mouseX = event.clientX;
+    const leftBorderRange = 20; // Range in pixels for activation horizontally
+    const lastRow = this.querySelector('table tr:last-child');
+    const isEmptyRow = Array.from(lastRow.cells).slice(1).every(cell => !cell.textContent.trim());
+
+    if (mouseX > tableRect.left - leftBorderRange && mouseX <= tableRect.left && isEmptyRow) {
+        lastRow.classList.add('highlight-left');
+    } else {
+        lastRow.classList.remove('highlight-left');
+    }
+});
+
 tableContainer.addEventListener('click', (event) => {
     if (table.classList.contains('show-plus')) {
         addNewRow();
