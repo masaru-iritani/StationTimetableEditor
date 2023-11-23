@@ -121,8 +121,8 @@ tr:last-child.highlight-left td:first-child::before {
     cursor: pointer;
     border-radius: 50%; /* Making the button circular */
     position: absolute;
+    left: 0; /* Positioning at the left border */
     transform: translateX(-50%); /* Centering the button horizontally */
-    left: 2; /* Adjusting for the width of the highlighted border */
     width: 24px; /* Size of the button */
     height: 24px; /* Size of the button */
     line-height: 24px; /* Align text vertically */
