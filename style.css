@@ -106,5 +106,5 @@ table.show-plus {
 }
 
 tr:last-child.highlight-left {
-    border-left: 4px solid #4CAF50; /* Green color for highlighting */
+    border-left: 4px solid red; /* Red color for highlighting */
 }
