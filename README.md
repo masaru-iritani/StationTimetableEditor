@@ -24,7 +24,7 @@ The application is compatible with modern web browsers like Chrome, Firefox, Saf
 The application is designed with accessibility in mind, featuring high-contrast elements and keyboard navigable interfaces.
 
 ## License
-This project is licensed under the MIT License - see the LICENSE.md file for details.
+This project is licensed under the CC0 License - see the LICENSE.md file for details.
 
 ## Contributing
 Contributions to this project are welcome. Please fork the repository and submit a pull request with your changes.
