@@ -123,7 +123,7 @@ tr:last-child.highlight-left td:first-child::before {
     position: absolute;
     left: 0; /* Positioning at the left border */
     transform: translateX(-50%); /* Centering the button horizontally */
-    width: 24px; /* Size of the button */
-    height: 24px; /* Size of the button */
-    line-height: 24px; /* Align text vertically */
+    width: 20px; /* Reducing size to match the add button */
+    height: 20px; /* Reducing size to match the add button */
+    line-height: 20px; /* Align text vertically */
 }
