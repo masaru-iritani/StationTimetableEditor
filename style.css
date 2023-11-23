@@ -108,7 +108,6 @@ table.show-plus {
 tr:last-child.highlight-left {
     border-left: 4px solid red; /* Red color for highlighting */
 }
-
 tr:last-child.highlight-left td:first-child::before {
     content: '\2716'; /* Unicode cross symbol */
     background-color: red;
@@ -121,9 +120,9 @@ tr:last-child.highlight-left td:first-child::before {
     cursor: pointer;
     border-radius: 50%; /* Making the button circular */
     position: absolute;
-    left: -40px;
+    left: 0;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translate(-50%, -50%); /* Centering the button */
     width: 24px; /* Size of the button */
     height: 24px; /* Size of the button */
     line-height: 24px; /* Align text vertically */
