@@ -331,37 +331,31 @@ document.getElementById('table-container').addEventListener('mousemove', functio
     const firstRowRect = firstRow.getBoundingClientRect();
     const lastRowRect = lastRow.getBoundingClientRect();
     const leftBorderRange = 20; // Range in pixels for activation horizontally
-    const bottomBorderRange = 20; // Range in pixels for activation vertically
-    const topBorderRange = 20; // Range in pixels for activation vertically
+    const borderRange = 20; // Range in pixels for activation vertically
     const distanceToLeftBorder = Math.abs(mouseX - tableRect.left);
-    const distanceToBottomBorder = Math.abs(mouseY - (tableRect.bottom + bottomBorderRange));
-    const distanceToTopBorder = Math.abs(mouseY - (tableBodyRect.top - topBorderRange));
+    const distanceToTopBorder = mouseY - tableBodyRect.top;
+    const distanceToBottomBorder = tableBodyRect.bottom - mouseY;
     const isEmptyFirstRow = Array.from(firstRow.cells).slice(1).every(cell => !cell.textContent.trim());
     const isEmptyLastRow = Array.from(lastRow.cells).slice(1).every(cell => !cell.textContent.trim());
 
-    // Show plus button when cursor is close to the bottom or top border but outside of the table
-    if ((distanceToBottomBorder <= bottomBorderRange && mouseY > tableRect.bottom) ||
-        (distanceToTopBorder <= topBorderRange && mouseY < tableBodyRect.top)) {
-        table.classList.add('show-plus');
-    } else {
-        table.classList.remove('show-plus');
-    }
-
-    // Highlight first or last row based on mouse position and emptiness
+    // Determine which border to highlight based on cursor position
     if (distanceToLeftBorder <= leftBorderRange) {
-        if (isEmptyFirstRow && mouseY >= firstRowRect.top && mouseY <= firstRowRect.bottom) {
-            firstRow.classList.add('highlight-left');
-            lastRow.classList.remove('highlight-left');
-        } else if (isEmptyLastRow && mouseY >= lastRowRect.top && mouseY <= lastRowRect.bottom) {
-            lastRow.classList.add('highlight-left');
-            firstRow.classList.remove('highlight-left');
+        if ((isEmptyFirstRow && distanceToTopBorder >= 0 && distanceToTopBorder <= borderRange) ||
+            (isEmptyLastRow && distanceToBottomBorder >= 0 && distanceToBottomBorder <= borderRange)) {
+            if (distanceToTopBorder < distanceToBottomBorder) {
+                tableBody.classList.add('highlight-top');
+                tableBody.classList.remove('highlight-bottom');
+            } else {
+                tableBody.classList.remove('highlight-top');
+                tableBody.classList.add('highlight-bottom');
+            }
         } else {
-            firstRow.classList.remove('highlight-left');
-            lastRow.classList.remove('highlight-left');
+            tableBody.classList.remove('highlight-top');
+            tableBody.classList.remove('highlight-bottom');
         }
     } else {
-        firstRow.classList.remove('highlight-left');
-        lastRow.classList.remove('highlight-left');
+        tableBody.classList.remove('highlight-top');
+        tableBody.classList.remove('highlight-bottom');
     }
 });
 
