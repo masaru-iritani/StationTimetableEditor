@@ -340,18 +340,33 @@ document.getElementById('table-container').addEventListener('mousemove', functio
 
     // Determine which border to highlight based on cursor position
     if (distanceToLeftBorder <= leftBorderRange) {
-        if ((isEmptyFirstRow && distanceToTopBorder >= 0 && distanceToTopBorder <= borderRange) ||
-            (isEmptyLastRow && distanceToBottomBorder >= 0 && distanceToBottomBorder <= borderRange)) {
-            if (distanceToTopBorder < distanceToBottomBorder) {
-                tableBody.classList.add('highlight-top');
-                tableBody.classList.remove('highlight-bottom');
-            } else {
-                tableBody.classList.remove('highlight-top');
-                tableBody.classList.add('highlight-bottom');
+        if ((isEmptyFirstRow && mouseY >= firstRowRect.top && mouseY <= firstRowRect.bottom) ||
+            (isEmptyLastRow && mouseY >= lastRowRect.top && mouseY <= lastRowRect.bottom)) {
+            if (isEmptyFirstRow && distanceToTopBorder >= 0 && distanceToTopBorder <= borderRange) {
+                firstRow.classList.add('highlight-left');
+                lastRow.classList.remove('highlight-left');
+            } else if (isEmptyLastRow && distanceToBottomBorder >= 0 && distanceToBottomBorder <= borderRange) {
+                lastRow.classList.add('highlight-left');
+                firstRow.classList.remove('highlight-left');
             }
         } else {
-            tableBody.classList.remove('highlight-top');
+            firstRow.classList.remove('highlight-left');
+            lastRow.classList.remove('highlight-left');
+        }
+    } else {
+        firstRow.classList.remove('highlight-left');
+        lastRow.classList.remove('highlight-left');
+    }
+
+    // Handle highlighting of top and bottom borders
+    if ((isEmptyFirstRow && distanceToTopBorder >= 0 && distanceToTopBorder <= borderRange) ||
+        (isEmptyLastRow && distanceToBottomBorder >= 0 && distanceToBottomBorder <= borderRange)) {
+        if (distanceToTopBorder < distanceToBottomBorder) {
+            tableBody.classList.add('highlight-top');
             tableBody.classList.remove('highlight-bottom');
+        } else {
+            tableBody.classList.remove('highlight-top');
+            tableBody.classList.add('highlight-bottom');
         }
     } else {
         tableBody.classList.remove('highlight-top');
