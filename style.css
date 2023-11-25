@@ -110,15 +110,13 @@ tbody.highlight-top::before, tbody.highlight-bottom::before {
 }
 
 tbody.highlight-top::before {
-    top: -12px; /* Positioning above the top border */
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%); /* Centering the button horizontally and vertically on top border */
 }
 
 tbody.highlight-bottom::before {
     bottom: -12px; /* Positioning below the bottom border */
-    transform: translateX(-50%);
+    transform: translateX(-50%); /* Centering the button horizontally */
 }
-
 
 tr.highlight-left {
     border-left: 4px solid red; /* Red color for highlighting */
