@@ -323,20 +323,25 @@ document.getElementById('table-container').addEventListener('mousemove', functio
     const mouseX = event.clientX;
     const mouseY = event.clientY;
     const table = this.querySelector('table');
+    const tableBody = table.querySelector('tbody');
     const tableRect = table.getBoundingClientRect();
-    const firstRow = table.querySelector('tbody tr:first-child');
-    const lastRow = table.querySelector('tbody tr:last-child');
+    const tableBodyRect = tableBody.getBoundingClientRect();
+    const firstRow = tableBody.querySelector('tr:first-child');
+    const lastRow = tableBody.querySelector('tr:last-child');
     const firstRowRect = firstRow.getBoundingClientRect();
     const lastRowRect = lastRow.getBoundingClientRect();
     const leftBorderRange = 20; // Range in pixels for activation horizontally
     const bottomBorderRange = 20; // Range in pixels for activation vertically
+    const topBorderRange = 20; // Range in pixels for activation vertically
     const distanceToLeftBorder = Math.abs(mouseX - tableRect.left);
     const distanceToBottomBorder = Math.abs(mouseY - (tableRect.bottom + bottomBorderRange));
+    const distanceToTopBorder = Math.abs(mouseY - (tableBodyRect.top - topBorderRange));
     const isEmptyFirstRow = Array.from(firstRow.cells).slice(1).every(cell => !cell.textContent.trim());
     const isEmptyLastRow = Array.from(lastRow.cells).slice(1).every(cell => !cell.textContent.trim());
 
-    // Show plus button when cursor is close to the bottom border but outside of the table
-    if (distanceToBottomBorder <= bottomBorderRange && mouseY > tableRect.bottom) {
+    // Show plus button when cursor is close to the bottom or top border but outside of the table
+    if ((distanceToBottomBorder <= bottomBorderRange && mouseY > tableRect.bottom) ||
+        (distanceToTopBorder <= topBorderRange && mouseY < tableBodyRect.top)) {
         table.classList.add('show-plus');
     } else {
         table.classList.remove('show-plus');
