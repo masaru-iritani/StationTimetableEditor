@@ -336,25 +336,30 @@ document.getElementById('table-container').addEventListener('mousemove', functio
     const mouseY = event.clientY;
     const table = this.querySelector('table');
     const tableRect = table.getBoundingClientRect();
-    const lastRow = table.querySelector('tr:last-child');
+    const firstRow = table.querySelector('tbody tr:first-child');
+    const lastRow = table.querySelector('tbody tr:last-child');
+    const firstRowRect = firstRow.getBoundingClientRect();
     const lastRowRect = lastRow.getBoundingClientRect();
-    const isEmptyRow = Array.from(lastRow.cells).slice(1).every(cell => !cell.textContent.trim());
     const leftBorderRange = 20; // Range in pixels for activation horizontally
     const distanceToBorder = Math.abs(mouseX - tableRect.left);
 
-    // Suppress remove button if add button is active
-    if (table.classList.contains('show-plus')) {
-        lastRow.classList.remove('highlight-left');
-        return;
-    }
-
-    if (distanceToBorder <= leftBorderRange && mouseY >= lastRowRect.top && mouseY <= lastRowRect.bottom && isEmptyRow) {
-        lastRow.classList.add('highlight-left');
+    // Highlight first or last row based on mouse position
+    if (distanceToBorder <= leftBorderRange) {
+        if (mouseY >= firstRowRect.top && mouseY <= firstRowRect.bottom) {
+            firstRow.classList.add('highlight-left');
+            lastRow.classList.remove('highlight-left');
+        } else if (mouseY >= lastRowRect.top && mouseY <= lastRowRect.bottom) {
+            lastRow.classList.add('highlight-left');
+            firstRow.classList.remove('highlight-left');
+        } else {
+            firstRow.classList.remove('highlight-left');
+            lastRow.classList.remove('highlight-left');
+        }
     } else {
+        firstRow.classList.remove('highlight-left');
         lastRow.classList.remove('highlight-left');
     }
 });
-
 
 tableContainer.addEventListener('click', (event) => {
     if (table.classList.contains('show-plus')) {
@@ -366,22 +371,5 @@ document.getElementById('table-container').addEventListener('click', function(ev
     const lastRow = this.querySelector('table tr:last-child');
     if (lastRow.classList.contains('highlight-left')) {
         lastRow.remove();
-    }
-});
-
-document.getElementById('table-container').addEventListener('mousemove', function(event) {
-    const mouseX = event.clientX;
-    const mouseY = event.clientY;
-    const table = this.querySelector('table');
-    const tableRect = table.getBoundingClientRect();
-    const firstRow = table.querySelector('tbody tr:first-child');
-    const firstRowRect = firstRow.getBoundingClientRect();
-    const leftBorderRange = 20; // Range in pixels for activation horizontally
-    const distanceToBorder = Math.abs(mouseX - tableRect.left);
-
-    if (distanceToBorder <= leftBorderRange && mouseY >= firstRowRect.top && mouseY <= firstRowRect.bottom) {
-        firstRow.classList.add('highlight-left');
-    } else {
-        firstRow.classList.remove('highlight-left');
     }
 });
