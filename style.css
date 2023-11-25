@@ -83,26 +83,46 @@ table {
     padding-bottom: 30px; /* Increase padding to create a hoverable area below the table */
 }
 
-table.show-plus::after {
-    content: '+'; /* Plus button content */
-    display: block; /* Show the plus button when the class is present */
-    position: absolute;
-    bottom: 0; /* Align the bottom of the button with the table's bottom border */
-    left: 50%;
-    transform: translate(-50%, 50%); /* Adjust horizontal centering and move half of its height upwards */
-    background-color: #4CAF50;
-    color: white;
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    line-height: 20px;
-    border-radius: 50%;
-    font-size: 16px;
-    border: 2px solid white;
+tbody.highlight-top {
+    border-top: 4px solid #4CAF50; /* Green color for highlighting */
 }
 
-table.show-plus {
-    border-bottom: 4px solid #4CAF50; /* Green color matching the plus button */
+tbody.highlight-bottom {
+    border-bottom: 4px solid #4CAF50; /* Green color for highlighting */
+}
+
+tbody.highlight-top::before {
+    content: '+'; /* Plus symbol */
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    position: absolute;
+    left: 50%;
+    top: -30px;
+    transform: translateX(-50%);
+}
+
+tbody.highlight-bottom::before {
+    content: '+'; /* Plus symbol */
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    position: absolute;
+    left: 50%;
+    bottom: -30px;
+    transform: translateX(-50%);
 }
 
 tr.highlight-left {
