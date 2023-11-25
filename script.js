@@ -367,9 +367,9 @@ tableContainer.addEventListener('click', (event) => {
     }
 });
 
-document.getElementById('table-container').addEventListener('click', function(event) {
-    const lastRow = this.querySelector('table tr:last-child');
-    if (lastRow.classList.contains('highlight-left')) {
-        lastRow.remove();
+document.getElementById('table-container').addEventListener('click', function() {
+    const highlightedRow = this.querySelector('tr.highlight-left');
+    if (highlightedRow) {
+        highlightedRow.remove();
     }
 });
