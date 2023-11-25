@@ -315,10 +315,6 @@ function addNewRow() {
     updateURLHash(newRow);
 }
 
-const tableContainer = document.getElementById('table-container');
-const table = document.querySelector('#table-container table');
-const threshold = 30; // pixels for proximity to the bottom border
-
 document.getElementById('table-container').addEventListener('mousemove', function(event) {
     const mouseX = event.clientX;
     const mouseY = event.clientY;
@@ -374,15 +370,13 @@ document.getElementById('table-container').addEventListener('mousemove', functio
     }
 });
 
-tableContainer.addEventListener('click', (event) => {
-    if (table.classList.contains('show-plus')) {
-        addNewRow();
-    }
-});
-
 document.getElementById('table-container').addEventListener('click', function() {
     const highlightedRow = this.querySelector('tr.highlight-left');
     if (highlightedRow) {
         highlightedRow.remove();
+    }
+    const tableBody = this.querySelector('table tbody');
+    if (tableBody.classList.contains('highlight-top') || tableBody.classList.contains('highlight-bottom')) {
+        addNewRow();
     }
 });
