@@ -318,6 +318,7 @@ function addNewRow() {
 const tableContainer = document.getElementById('table-container');
 const table = document.querySelector('#table-container table');
 const threshold = 30; // pixels for proximity to the bottom border
+
 document.getElementById('table-container').addEventListener('mousemove', function(event) {
     const mouseX = event.clientX;
     const mouseY = event.clientY;
@@ -328,34 +329,34 @@ document.getElementById('table-container').addEventListener('mousemove', functio
     const firstRowRect = firstRow.getBoundingClientRect();
     const lastRowRect = lastRow.getBoundingClientRect();
     const leftBorderRange = 20; // Range in pixels for activation horizontally
-    const distanceToBorder = Math.abs(mouseX - tableRect.left);
+    const bottomBorderRange = 20; // Range in pixels for activation vertically
+    const distanceToLeftBorder = Math.abs(mouseX - tableRect.left);
+    const distanceToBottomBorder = Math.abs(mouseY - (tableRect.bottom + bottomBorderRange));
     const isEmptyFirstRow = Array.from(firstRow.cells).slice(1).every(cell => !cell.textContent.trim());
     const isEmptyLastRow = Array.from(lastRow.cells).slice(1).every(cell => !cell.textContent.trim());
-    const isNearBottomBorder = mouseY > tableRect.bottom - 30 && mouseY <= tableRect.bottom;
 
-    // Suppress remove button if add button is active
-    if (isNearBottomBorder) {
-        firstRow.classList.remove('highlight-left');
-        lastRow.classList.remove('highlight-left');
+    // Show plus button when cursor is close to the bottom border but outside of the table
+    if (distanceToBottomBorder <= bottomBorderRange && mouseY > tableRect.bottom) {
         table.classList.add('show-plus');
     } else {
         table.classList.remove('show-plus');
-        // Highlight first or last row based on mouse position and emptiness
-        if (distanceToBorder <= leftBorderRange) {
-            if (isEmptyFirstRow && mouseY >= firstRowRect.top && mouseY <= firstRowRect.bottom) {
-                firstRow.classList.add('highlight-left');
-                lastRow.classList.remove('highlight-left');
-            } else if (isEmptyLastRow && mouseY >= lastRowRect.top && mouseY <= lastRowRect.bottom) {
-                lastRow.classList.add('highlight-left');
-                firstRow.classList.remove('highlight-left');
-            } else {
-                firstRow.classList.remove('highlight-left');
-                lastRow.classList.remove('highlight-left');
-            }
+    }
+
+    // Highlight first or last row based on mouse position and emptiness
+    if (distanceToLeftBorder <= leftBorderRange) {
+        if (isEmptyFirstRow && mouseY >= firstRowRect.top && mouseY <= firstRowRect.bottom) {
+            firstRow.classList.add('highlight-left');
+            lastRow.classList.remove('highlight-left');
+        } else if (isEmptyLastRow && mouseY >= lastRowRect.top && mouseY <= lastRowRect.bottom) {
+            lastRow.classList.add('highlight-left');
+            firstRow.classList.remove('highlight-left');
         } else {
             firstRow.classList.remove('highlight-left');
             lastRow.classList.remove('highlight-left');
         }
+    } else {
+        firstRow.classList.remove('highlight-left');
+        lastRow.classList.remove('highlight-left');
     }
 });
 
