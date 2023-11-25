@@ -386,14 +386,16 @@ document.getElementById('table-container').addEventListener('click', function() 
 });
 
 function addNewRowAtTop() {
-    const tableBody = document.querySelector('table tbody');
-    const newRow = tableBody.insertRow(0); // Insert at the top of the table body
-    const numColumns = tableBody.rows[0].cells.length;
+    const table = document.querySelector('table tbody');
+    const newRow = table.insertRow(0); // Insert at the top of the table body
+    const numColumns = table.rows[1].cells.length; // Get the number of columns from the second row
 
     for (let i = 0; i < numColumns; i++) {
         const newCell = newRow.insertCell();
         if (i === 0) {
-            newCell.textContent = 'New Hour'; // Placeholder text for the first column
+            const firstRowHourCell = table.rows[1].cells[0];
+            const hour = parseInt(firstRowHourCell.textContent);
+            newCell.textContent = isNaN(hour) ? 'New Hour' : hour - 1; // Decrement the hour for the first column
         } else {
             newCell.addEventListener('dblclick', handleTableBodyCellDblClick);
         }
