@@ -372,11 +372,30 @@ document.getElementById('table-container').addEventListener('mousemove', functio
 
 document.getElementById('table-container').addEventListener('click', function() {
     const highlightedRow = this.querySelector('tr.highlight-left');
+    const tableBody = this.querySelector('table tbody');
+
     if (highlightedRow) {
         highlightedRow.remove();
     }
-    const tableBody = this.querySelector('table tbody');
-    if (tableBody.classList.contains('highlight-top') || tableBody.classList.contains('highlight-bottom')) {
+
+    if (tableBody.classList.contains('highlight-top')) {
+        addNewRowAtTop();
+    } else if (tableBody.classList.contains('highlight-bottom')) {
         addNewRow();
     }
 });
+
+function addNewRowAtTop() {
+    const tableBody = document.querySelector('table tbody');
+    const newRow = tableBody.insertRow(0); // Insert at the top of the table body
+    const numColumns = tableBody.rows[0].cells.length;
+
+    for (let i = 0; i < numColumns; i++) {
+        const newCell = newRow.insertCell();
+        if (i === 0) {
+            newCell.textContent = 'New Hour'; // Placeholder text for the first column
+        } else {
+            newCell.addEventListener('dblclick', handleTableBodyCellDblClick);
+        }
+    }
+}
