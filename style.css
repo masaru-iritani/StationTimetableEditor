@@ -91,39 +91,34 @@ tbody.highlight-bottom {
     border-bottom: 4px solid #4CAF50; /* Green color for highlighting */
 }
 
-tbody.highlight-top::before {
+tbody.highlight-top::before, tbody.highlight-bottom::before {
     content: '+'; /* Plus symbol */
     background-color: #4CAF50;
     color: white;
     border: none;
-    padding: 5px 10px;
+    padding: 0;
     text-align: center;
     display: inline-block;
-    font-size: 16px;
+    font-size: 20px;
     cursor: pointer;
-    border-radius: 8px;
+    border-radius: 50%; /* Circular shape */
     position: absolute;
     left: 50%;
-    top: -30px;
+    width: 24px; /* Size of the button */
+    height: 24px; /* Size of the button */
+    line-height: 24px; /* Align text vertically */
+}
+
+tbody.highlight-top::before {
+    top: -12px; /* Positioning above the top border */
     transform: translateX(-50%);
 }
 
 tbody.highlight-bottom::before {
-    content: '+'; /* Plus symbol */
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    text-align: center;
-    display: inline-block;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 8px;
-    position: absolute;
-    left: 50%;
-    bottom: -30px;
+    bottom: -12px; /* Positioning below the bottom border */
     transform: translateX(-50%);
 }
+
 
 tr.highlight-left {
     border-left: 4px solid red; /* Red color for highlighting */
