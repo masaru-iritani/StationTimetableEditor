@@ -346,6 +346,13 @@ document.getElementById('table-container').addEventListener('mousemove', functio
     const isEmptyFirstRow = Array.from(firstRow.cells).slice(1).every(cell => !cell.textContent.trim());
     const isEmptyLastRow = Array.from(lastRow.cells).slice(1).every(cell => !cell.textContent.trim());
 
+    // Suppress remove button if add button is active
+    if (table.classList.contains('show-plus')) {
+        firstRow.classList.remove('highlight-left');
+        lastRow.classList.remove('highlight-left');
+        return;
+    }
+
     // Highlight first or last row based on mouse position and emptiness
     if (distanceToBorder <= leftBorderRange) {
         if (isEmptyFirstRow && mouseY >= firstRowRect.top && mouseY <= firstRowRect.bottom) {
