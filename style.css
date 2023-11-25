@@ -105,11 +105,11 @@ table.show-plus {
     border-bottom: 4px solid #4CAF50; /* Green color matching the plus button */
 }
 
-tr:last-child.highlight-left {
-    border-left: 4px solid red; /* Red color for highlighting */
+tr.highlight-left {
+    border-left: 4px solid #4CAF50; /* Green color for highlighting */
 }
 
-tr:last-child.highlight-left td:first-child::before {
+tr.highlight-left td:first-child::before {
     content: '\2716'; /* Unicode cross symbol */
     background-color: red;
     color: white;
@@ -123,7 +123,7 @@ tr:last-child.highlight-left td:first-child::before {
     position: absolute;
     left: 0; /* Positioning at the left border */
     transform: translateX(-50%); /* Centering the button horizontally */
-    width: 20px; /* Reducing size to match the add button */
-    height: 20px; /* Reducing size to match the add button */
+    width: 20px; /* Size of the button */
+    height: 20px; /* Size of the button */
     line-height: 20px; /* Align text vertically */
 }
