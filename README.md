@@ -1,5 +1,7 @@
 # Station Timetable Editor
 
+<img src="screenshot.png" alt="A screenshot of Station Timetable Editor authoring the timetable of Tsubojiri station" width="480" height="706">
+
 ## Description
 The "Station Timetable Editor" is a Single Page Application (SPA) designed for efficient management and editing of station timetables. This user-friendly application caters to the needs of individuals and organizations managing train or bus station schedules.
 
