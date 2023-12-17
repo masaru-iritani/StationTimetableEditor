@@ -1,6 +1,6 @@
 # Station Timetable Editor
 
-<img src="screenshot.png" alt="A screenshot of Station Timetable Editor authoring the timetable of Tsubojiri station" width="480" height="706">
+<a href="https://masaru-iritani.github.io/StationTimetableEditor/#%E3%81%AE%E3%81%BC%E3%82%8A%EF%BC%88%E7%90%B4%E5%B9%B3%E6%96%B9%E9%9D%A2%EF%BC%89|#7:02:;8:29:;9::;10::;11::;12::33;13:52:;14::;15::;16::;17:01:;18::;19::;20::;21::;22::;23::;24::"><img src="screenshot.png" alt="A screenshot of Station Timetable Editor authoring the timetable of Tsubojiri station" width="480" height="706"></a>
 
 ## Description
 The "Station Timetable Editor" is a Single Page Application (SPA) designed for efficient management and editing of station timetables. This user-friendly application caters to the needs of individuals and organizations managing train or bus station schedules.
