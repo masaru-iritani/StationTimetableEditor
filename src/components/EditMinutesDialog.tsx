@@ -131,21 +131,24 @@ export const EditMinutesDialog: React.FC<EditMinutesDialogProps> = ({
                 return (
                   <div 
                     key={min} 
-                    className="group inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full text-sm font-medium transition-all"
+                    className="group inline-flex items-baseline gap-1.5 px-3 py-1 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full font-medium transition-all"
                   >
-                    <span>
+                    <div className="flex items-baseline gap-1">
                       {trainType ? (
                         <>
-                          <span style={{ color: trainType.color }}>{numStr}</span>
-                          <span className="text-indigo-300">{charStr}</span>
+                          <span className="text-xl" style={{ color: trainType.color }}>{numStr}</span>
+                          {charStr && <span className="text-xs text-indigo-300">{charStr}</span>}
                         </>
                       ) : (
-                        min
+                        <>
+                          <span className="text-xl">{numStr}</span>
+                          {charStr && <span className="text-xs">{charStr}</span>}
+                        </>
                       )}
-                    </span>
+                    </div>
                     <button 
                       onClick={() => handleRemoveMinute(min)}
-                      className="text-indigo-400 hover:text-red-400 transition-colors"
+                      className="text-indigo-400 hover:text-red-400 transition-colors ml-1"
                     >
                       <X size={14} />
                     </button>

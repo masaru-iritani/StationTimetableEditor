@@ -52,7 +52,11 @@ export function parseHash(hash: string): { headers: string[]; rows: TimetableRow
           .map(m => m.trim())
           .filter(min => min !== '')
           .map(min => {
-            const match = min.match(/^(\d+)(.*)$/);
+            let decoded = min;
+            try {
+              decoded = decodeURIComponent(min);
+            } catch (e) {}
+            const match = decoded.match(/^(\d+)(.*)$/);
             if (!match) return null;
             const num = parseInt(match[1], 10);
             if (num < 0 || num >= 60) return null;
@@ -110,7 +114,7 @@ export function serializeHash(headers: string[], rows: TimetableRow[], trainType
   const headersPart = headers.map(h => encodeURIComponent(h)).join('|');
   const sortedRows = [...rows].sort((a, b) => a.hour - b.hour);
   const timetablePart = sortedRows.map(row => {
-    const minuteGroupsStr = row.minutes.map(m => m.join(',')).join(':');
+    const minuteGroupsStr = row.minutes.map(m => m.map(min => encodeURIComponent(min)).join(',')).join(':');
     return `${row.hour}:${minuteGroupsStr}`;
   }).join(';');
 

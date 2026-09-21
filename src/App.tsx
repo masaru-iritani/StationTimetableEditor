@@ -15,7 +15,7 @@ export default function App() {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showTrainTypes, setShowTrainTypes] = useState(false);
 
-  // Initialize state from URL hash or localStorage
+  // Initialize state from URL hash or localStorage on mount
   useEffect(() => {
     const handleInitialState = () => {
       const hash = window.location.hash;
@@ -52,8 +52,10 @@ export default function App() {
     };
 
     handleInitialState();
+  }, []);
 
-    // Listen for hash change (handles back/forward navigation or manual URL updates)
+  // Listen for hash change (handles back/forward navigation or manual URL updates)
+  useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
       if (hash && hash.length > 1) {

@@ -251,19 +251,22 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
                               const trainType = trainTypes.find(t => t.char === charStr);
                               
                               return (
-                                <span
+                                <div
                                   key={min}
-                                  className="inline-block px-2.5 py-0.5 bg-slate-800 group-hover:bg-slate-700 border border-slate-700/80 group-hover:border-indigo-500/30 text-slate-300 group-hover:text-indigo-200 rounded-md text-xs font-mono font-medium transition-all"
+                                  className="inline-flex items-baseline gap-1 px-2.5 py-1 bg-slate-800 group-hover:bg-slate-700 border border-slate-700/80 group-hover:border-indigo-500/30 text-slate-300 group-hover:text-indigo-200 rounded-md font-mono font-medium transition-all"
                                 >
                                   {trainType ? (
                                     <>
-                                      <span style={{ color: trainType.color }}>{numStr}</span>
-                                      <span className="text-slate-300 group-hover:text-indigo-200">{charStr}</span>
+                                      <span className="text-2xl" style={{ color: trainType.color }}>{numStr}</span>
+                                      {charStr && <span className="text-xs text-slate-300 group-hover:text-indigo-200">{charStr}</span>}
                                     </>
                                   ) : (
-                                    min
+                                    <>
+                                      <span className="text-2xl">{numStr}</span>
+                                      {charStr && <span className="text-xs">{charStr}</span>}
+                                    </>
                                   )}
-                                </span>
+                                </div>
                               );
                             })}
                           </div>
