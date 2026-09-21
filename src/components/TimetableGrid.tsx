@@ -7,12 +7,14 @@ import { EditMinutesDialog } from './EditMinutesDialog';
 interface TimetableGridProps {
   headers: string[];
   rows: TimetableRow[];
+  trainTypes: import('../utils/timetableState').TrainType[];
   onChange: (headers: string[], rows: TimetableRow[]) => void;
 }
 
 export const TimetableGrid: React.FC<TimetableGridProps> = ({
   headers,
   rows,
+  trainTypes,
   onChange,
 }) => {
   // Dialog state
@@ -242,14 +244,28 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
                           </div>
                         ) : (
                           <div className="flex flex-wrap justify-center gap-1.5">
-                            {mins.map((min) => (
-                              <span
-                                key={min}
-                                className="inline-block px-2.5 py-0.5 bg-slate-800 group-hover:bg-slate-700 border border-slate-700/80 group-hover:border-indigo-500/30 text-slate-300 group-hover:text-indigo-200 rounded-md text-xs font-mono font-medium transition-all"
-                              >
-                                {min}
-                              </span>
-                            ))}
+                            {mins.map((min) => {
+                              const match = min.match(/^(\d+)(.*)$/);
+                              const numStr = match ? match[1] : min;
+                              const charStr = match ? match[2] : '';
+                              const trainType = trainTypes.find(t => t.char === charStr);
+                              
+                              return (
+                                <span
+                                  key={min}
+                                  className="inline-block px-2.5 py-0.5 bg-slate-800 group-hover:bg-slate-700 border border-slate-700/80 group-hover:border-indigo-500/30 text-slate-300 group-hover:text-indigo-200 rounded-md text-xs font-mono font-medium transition-all"
+                                >
+                                  {trainType ? (
+                                    <>
+                                      <span style={{ color: trainType.color }}>{numStr}</span>
+                                      <span className="text-slate-300 group-hover:text-indigo-200">{charStr}</span>
+                                    </>
+                                  ) : (
+                                    min
+                                  )}
+                                </span>
+                              );
+                            })}
                           </div>
                         )}
                       </td>
@@ -292,6 +308,7 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
         hour={activeHour || 0}
         routeName={activeRouteName}
         minutes={activeMinutes}
+        trainTypes={trainTypes}
         onSave={handleSaveCellMinutes}
       />
     </div>

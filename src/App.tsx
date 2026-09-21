@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Share2, RotateCcw, Trash2, Check } from 'lucide-react';
+import { Share2, RotateCcw, Trash2, Check, Settings } from 'lucide-react';
 import { parseHash, serializeHash, getDefaultRows } from './utils/timetableState';
-import type { TimetableRow } from './utils/timetableState';
+import type { TimetableRow, TrainType } from './utils/timetableState';
 import { TimetableGrid } from './components/TimetableGrid';
+import { TrainTypeEditor } from './components/TrainTypeEditor';
 
 const LOCAL_STORAGE_KEY = 'station_timetable_editor_state_v1';
 
 export default function App() {
   const [headers, setHeaders] = useState<string[]>(['']);
   const [rows, setRows] = useState<TimetableRow[]>([]);
+  const [trainTypes, setTrainTypes] = useState<TrainType[]>([]);
   const [copied, setCopied] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showTrainTypes, setShowTrainTypes] = useState(false);
 
   // Initialize state from URL hash or localStorage
   useEffect(() => {
@@ -20,6 +23,7 @@ export default function App() {
         const parsed = parseHash(hash);
         setHeaders(parsed.headers);
         setRows(parsed.rows);
+        setTrainTypes(parsed.trainTypes);
       } else {
         const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (saved) {
@@ -28,8 +32,9 @@ export default function App() {
             if (parsed.headers && parsed.rows) {
               setHeaders(parsed.headers);
               setRows(parsed.rows);
+              setTrainTypes(parsed.trainTypes || []);
               // Sync url hash on initial load from local storage
-              window.location.hash = serializeHash(parsed.headers, parsed.rows);
+              window.location.hash = serializeHash(parsed.headers, parsed.rows, parsed.trainTypes || []);
               return;
             }
           } catch (e) {
@@ -41,7 +46,8 @@ export default function App() {
         const defaultRows = getDefaultRows(1);
         setHeaders(defaultHeaders);
         setRows(defaultRows);
-        window.location.hash = serializeHash(defaultHeaders, defaultRows);
+        setTrainTypes([]);
+        window.location.hash = serializeHash(defaultHeaders, defaultRows, []);
       }
     };
 
@@ -53,32 +59,34 @@ export default function App() {
       if (hash && hash.length > 1) {
         const parsed = parseHash(hash);
         // Compare with current state to prevent endless loops
-        const serializedCurrent = serializeHash(headers, rows);
-        const serializedNew = serializeHash(parsed.headers, parsed.rows);
+        const serializedCurrent = serializeHash(headers, rows, trainTypes);
+        const serializedNew = serializeHash(parsed.headers, parsed.rows, parsed.trainTypes);
         if (serializedCurrent !== serializedNew) {
           setHeaders(parsed.headers);
           setRows(parsed.rows);
+          setTrainTypes(parsed.trainTypes);
         }
       }
     };
 
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+  }, [headers, rows, trainTypes]);
 
-  // Update URL hash and localStorage whenever headers or rows change
-  const handleStateChange = (newHeaders: string[], newRows: TimetableRow[]) => {
+  // Update URL hash and localStorage whenever headers, rows or trainTypes change
+  const handleStateChange = (newHeaders: string[], newRows: TimetableRow[], newTrainTypes: TrainType[] = trainTypes) => {
     setHeaders(newHeaders);
     setRows(newRows);
+    setTrainTypes(newTrainTypes);
     
     // Save to LocalStorage
     localStorage.setItem(
       LOCAL_STORAGE_KEY,
-      JSON.stringify({ headers: newHeaders, rows: newRows })
+      JSON.stringify({ headers: newHeaders, rows: newRows, trainTypes: newTrainTypes })
     );
 
     // Save to URL hash
-    const newHash = serializeHash(newHeaders, newRows);
+    const newHash = serializeHash(newHeaders, newRows, newTrainTypes);
     // Only update hash if it's different to prevent layout jitters
     if (window.location.hash.slice(1) !== newHash) {
       window.location.hash = newHash;
@@ -98,7 +106,7 @@ export default function App() {
   const handleClearAll = () => {
     const emptyHeaders = ['Route 1'];
     const emptyRows = getDefaultRows(1);
-    handleStateChange(emptyHeaders, emptyRows);
+    handleStateChange(emptyHeaders, emptyRows, trainTypes);
     setShowClearConfirm(false);
   };
 
@@ -115,7 +123,7 @@ export default function App() {
       else if (row.hour === 17) updated.minutes = [['01']];
       return updated;
     });
-    handleStateChange(tsubojiriHeaders, tsubojiriRows);
+    handleStateChange(tsubojiriHeaders, tsubojiriRows, trainTypes);
   };
 
   return (
@@ -184,6 +192,15 @@ export default function App() {
                 <span className="hidden sm:inline">Clear Grid</span>
               </button>
             )}
+
+            <button
+              onClick={() => setShowTrainTypes(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold rounded-xl transition-all border border-slate-800 cursor-pointer"
+              title="Manage Train Types"
+            >
+              <Settings size={14} />
+              <span className="hidden sm:inline">Train Types</span>
+            </button>
           </div>
         </div>
       </header>
@@ -228,10 +245,18 @@ export default function App() {
           <TimetableGrid
             headers={headers}
             rows={rows}
-            onChange={handleStateChange}
+            trainTypes={trainTypes}
+            onChange={(newHeaders, newRows) => handleStateChange(newHeaders, newRows, trainTypes)}
           />
         </section>
       </main>
+
+      <TrainTypeEditor
+        isOpen={showTrainTypes}
+        onClose={() => setShowTrainTypes(false)}
+        trainTypes={trainTypes}
+        onSave={(newTrainTypes) => handleStateChange(headers, rows, newTrainTypes)}
+      />
 
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950 py-8 mt-12 text-slate-500 text-xs">

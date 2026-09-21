@@ -3,6 +3,11 @@ export interface TimetableRow {
   minutes: string[][]; // Array of string arrays for each route column
 }
 
+export interface TrainType {
+  char: string;
+  color: string;
+}
+
 export function getDefaultRows(colCount: number): TimetableRow[] {
   const rows: TimetableRow[] = [];
   for (let h = 6; h <= 24; h++) {
@@ -15,12 +20,12 @@ export function getDefaultRows(colCount: number): TimetableRow[] {
   return rows;
 }
 
-export function parseHash(hash: string): { headers: string[]; rows: TimetableRow[] } {
+export function parseHash(hash: string): { headers: string[]; rows: TimetableRow[]; trainTypes: TrainType[] } {
   const cleanHash = hash.startsWith('#') ? hash.slice(1) : hash;
   const hashParts = cleanHash.split('#');
   
   if (hashParts.length < 2 || !hashParts[0]) {
-    return { headers: [''], rows: getDefaultRows(1) };
+    return { headers: [''], rows: getDefaultRows(1), trainTypes: [] };
   }
 
   const headers = hashParts[0].split('|').map(text => {
@@ -45,10 +50,15 @@ export function parseHash(hash: string): { headers: string[]; rows: TimetableRow
         if (!group) return [];
         return group.split(',')
           .map(m => m.trim())
-          .filter(min => min !== '' && !isNaN(parseInt(min, 10)))
-          .map(min => parseInt(min, 10))
-          .filter(min => min >= 0 && min < 60)
-          .map(min => min.toString().padStart(2, '0'));
+          .filter(min => min !== '')
+          .map(min => {
+            const match = min.match(/^(\d+)(.*)$/);
+            if (!match) return null;
+            const num = parseInt(match[1], 10);
+            if (num < 0 || num >= 60) return null;
+            return num.toString().padStart(2, '0') + match[2];
+          })
+          .filter((min): min is string => min !== null);
       });
 
       rows.push({ hour, minutes });
@@ -57,7 +67,7 @@ export function parseHash(hash: string): { headers: string[]; rows: TimetableRow
 
   // Ensure rows has elements, default to 6-24 if empty
   if (rows.length === 0) {
-    return { headers, rows: getDefaultRows(headers.length) };
+    rows.push(...getDefaultRows(headers.length));
   }
 
   // Ensure every row has the same number of columns as the headers!
@@ -74,10 +84,29 @@ export function parseHash(hash: string): { headers: string[]; rows: TimetableRow
   // Sort rows by hour ascending
   rows.sort((a, b) => a.hour - b.hour);
 
-  return { headers, rows };
+  const trainTypes: TrainType[] = [];
+  if (hashParts.length >= 3) {
+    const typesStr = hashParts[2];
+    if (typesStr) {
+      const types = typesStr.split(',').map(t => {
+        const [charEnc, colorEnc] = t.split(':');
+        try {
+          return {
+            char: decodeURIComponent(charEnc),
+            color: decodeURIComponent(colorEnc)
+          };
+        } catch {
+          return null;
+        }
+      }).filter((t): t is TrainType => t !== null);
+      trainTypes.push(...types);
+    }
+  }
+
+  return { headers, rows, trainTypes };
 }
 
-export function serializeHash(headers: string[], rows: TimetableRow[]): string {
+export function serializeHash(headers: string[], rows: TimetableRow[], trainTypes: TrainType[] = []): string {
   const headersPart = headers.map(h => encodeURIComponent(h)).join('|');
   const sortedRows = [...rows].sort((a, b) => a.hour - b.hour);
   const timetablePart = sortedRows.map(row => {
@@ -85,5 +114,7 @@ export function serializeHash(headers: string[], rows: TimetableRow[]): string {
     return `${row.hour}:${minuteGroupsStr}`;
   }).join(';');
 
-  return `${headersPart}#${timetablePart}`;
+  const typesPart = trainTypes.map(t => `${encodeURIComponent(t.char)}:${encodeURIComponent(t.color)}`).join(',');
+
+  return typesPart ? `${headersPart}#${timetablePart}#${typesPart}` : `${headersPart}#${timetablePart}`;
 }

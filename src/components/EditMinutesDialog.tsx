@@ -7,6 +7,7 @@ interface EditMinutesDialogProps {
   hour: number;
   routeName: string;
   minutes: string[];
+  trainTypes: import('../utils/timetableState').TrainType[];
   onSave: (newMinutes: string[]) => void;
 }
 
@@ -16,6 +17,7 @@ export const EditMinutesDialog: React.FC<EditMinutesDialogProps> = ({
   hour,
   routeName,
   minutes,
+  trainTypes,
   onSave,
 }) => {
   const [currentMinutes, setCurrentMinutes] = useState<string[]>([]);
@@ -39,13 +41,19 @@ export const EditMinutesDialog: React.FC<EditMinutesDialogProps> = ({
     const trimmed = val.trim();
     if (!trimmed) return;
 
-    const parsed = parseInt(trimmed, 10);
-    if (isNaN(parsed) || parsed < 0 || parsed > 59) {
+    const match = trimmed.match(/^(\d+)(.*)$/);
+    if (!match) {
+      setError('Must start with a number (e.g. 05 or 15特).');
+      return;
+    }
+
+    const parsed = parseInt(match[1], 10);
+    if (parsed < 0 || parsed > 59) {
       setError('Minutes must be between 00 and 59.');
       return;
     }
 
-    const formatted = parsed.toString().padStart(2, '0');
+    const formatted = parsed.toString().padStart(2, '0') + match[2];
     if (currentMinutes.includes(formatted)) {
       setError('This minute is already added.');
       return;
@@ -114,20 +122,36 @@ export const EditMinutesDialog: React.FC<EditMinutesDialogProps> = ({
             </div>
           ) : (
             <div className="mt-2 flex flex-wrap gap-2 max-h-32 overflow-y-auto p-1">
-              {currentMinutes.map((min) => (
-                <div 
-                  key={min} 
-                  className="group inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full text-sm font-medium transition-all"
-                >
-                  <span>{min}</span>
-                  <button 
-                    onClick={() => handleRemoveMinute(min)}
-                    className="text-indigo-400 hover:text-red-400 transition-colors"
+              {currentMinutes.map((min) => {
+                const match = min.match(/^(\d+)(.*)$/);
+                const numStr = match ? match[1] : min;
+                const charStr = match ? match[2] : '';
+                const trainType = trainTypes.find(t => t.char === charStr);
+                
+                return (
+                  <div 
+                    key={min} 
+                    className="group inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full text-sm font-medium transition-all"
                   >
-                    <X size={14} />
-                  </button>
-                </div>
-              ))}
+                    <span>
+                      {trainType ? (
+                        <>
+                          <span style={{ color: trainType.color }}>{numStr}</span>
+                          <span className="text-indigo-300">{charStr}</span>
+                        </>
+                      ) : (
+                        min
+                      )}
+                    </span>
+                    <button 
+                      onClick={() => handleRemoveMinute(min)}
+                      className="text-indigo-400 hover:text-red-400 transition-colors"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -142,10 +166,8 @@ export const EditMinutesDialog: React.FC<EditMinutesDialogProps> = ({
               <input
                 ref={inputRef}
                 id="minute-input"
-                type="number"
-                min="0"
-                max="59"
-                placeholder="e.g. 05"
+                type="text"
+                placeholder="e.g. 05 or 15特"
                 value={inputValue}
                 onChange={(e) => {
                   setInputValue(e.target.value);
