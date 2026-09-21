@@ -126,10 +126,6 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
         <table className="w-full border-collapse text-left">
           <thead>
             <tr className="border-b border-slate-800 bg-slate-900/50">
-              {/* Row actions spacer */}
-              <th className="w-16 px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Actions
-              </th>
               {/* Hour column */}
               <th className="w-20 px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-400 border-r border-slate-800">
                 Hour
@@ -174,7 +170,7 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
             {/* Top row insert button (if rows exist) */}
             {rows.length > 0 && (
               <tr>
-                <td colSpan={headers.length + 3} className="p-0">
+                <td colSpan={headers.length + 2} className="p-0">
                   <button
                     onClick={handleAddRowTop}
                     className="w-full py-2.5 text-xs text-center text-slate-500 hover:text-indigo-400 hover:bg-indigo-950/15 border-b border-dashed border-slate-800 transition-all font-medium flex items-center justify-center gap-1 cursor-pointer"
@@ -188,7 +184,7 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
             {/* Empty state rows */}
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={headers.length + 3} className="py-16 text-center text-slate-500">
+                <td colSpan={headers.length + 2} className="py-16 text-center text-slate-500">
                   <p className="text-sm italic">No hours added yet</p>
                   <button
                     onClick={handleAddRowBottom}
@@ -203,7 +199,7 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
                 const isFirst = rowIndex === 0;
                 const isLast = rowIndex === rows.length - 1;
                 const isEmpty = isRowEmpty(row);
-                // Can delete if it's the first or last row AND it's empty (preserves vanilla behavior)
+                // Can delete if it's the first or last row AND it's empty
                 const canDelete = (isFirst || isLast) && isEmpty;
 
                 return (
@@ -211,21 +207,6 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
                     key={row.hour} 
                     className="border-b border-slate-800/60 hover:bg-slate-900/10 transition-colors"
                   >
-                    {/* Row delete action */}
-                    <td className="px-4 py-3 text-center align-middle">
-                      {canDelete ? (
-                        <button
-                          onClick={() => handleRemoveRow(rowIndex)}
-                          className="mx-auto flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white transition-all cursor-pointer border border-red-500/20"
-                          title="Remove empty hour row"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      ) : (
-                        <span className="text-slate-700 text-xs">—</span>
-                      )}
-                    </td>
-
                     {/* Hour cell */}
                     <td className="px-4 py-3 text-center text-sm font-semibold text-slate-300 bg-slate-900/20 border-r border-slate-800 font-mono">
                       {row.hour}
@@ -274,8 +255,18 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
                       </td>
                     ))}
 
-                    {/* Empty cell at the end (corresponding to add column header) */}
-                    <td className="px-4 py-3 bg-slate-950/10" />
+                    {/* Trailing cell — delete button for first/last empty rows, otherwise blank */}
+                    <td className="w-16 px-3 py-3 text-center align-middle bg-slate-950/10">
+                      {canDelete && (
+                        <button
+                          onClick={() => handleRemoveRow(rowIndex)}
+                          className="mx-auto flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white transition-all cursor-pointer border border-red-500/20"
+                          title="Remove empty hour row"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 );
               })
@@ -284,7 +275,7 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
             {/* Bottom row insert button (if rows exist) */}
             {rows.length > 0 && (
               <tr>
-                <td colSpan={headers.length + 3} className="p-0">
+                <td colSpan={headers.length + 2} className="p-0">
                   <button
                     onClick={handleAddRowBottom}
                     className="w-full py-2.5 text-xs text-center text-slate-500 hover:text-indigo-400 hover:bg-indigo-950/15 transition-all font-medium flex items-center justify-center gap-1 cursor-pointer"
