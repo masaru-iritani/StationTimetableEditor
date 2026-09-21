@@ -20,11 +20,14 @@ export const TrainTypeEditor: React.FC<TrainTypeEditorProps> = ({
   const [colorInput, setColorInput] = useState('#ff0000');
   const [error, setError] = useState('');
 
+  const [descriptionInput, setDescriptionInput] = useState('');
+
   useEffect(() => {
     if (isOpen) {
       setTypes([...trainTypes]);
       setCharInput('');
       setColorInput('#ff0000');
+      setDescriptionInput('');
       setError('');
     }
   }, [isOpen, trainTypes]);
@@ -42,8 +45,9 @@ export const TrainTypeEditor: React.FC<TrainTypeEditorProps> = ({
       return;
     }
     
-    setTypes([...types, { char: trimmedChar, color: colorInput }]);
+    setTypes([...types, { char: trimmedChar, color: colorInput, description: descriptionInput.trim() }]);
     setCharInput('');
+    setDescriptionInput('');
     setError('');
   };
 
@@ -79,16 +83,23 @@ export const TrainTypeEditor: React.FC<TrainTypeEditorProps> = ({
           ) : (
             <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
               {types.map(t => (
-                <div key={t.char} className="flex items-center justify-between bg-slate-900/60 border border-slate-800 rounded-xl p-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-md shadow-sm border border-slate-700" style={{ backgroundColor: t.color }}></div>
-                    <span className="text-sm font-medium text-slate-200">
-                      Character: <span className="font-bold text-lg ml-1" style={{ color: t.color }}>{t.char}</span>
-                    </span>
+                <div key={t.char} className="flex flex-col gap-2 bg-slate-900/60 border border-slate-800 rounded-xl p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 rounded-md shadow-sm border border-slate-700" style={{ backgroundColor: t.color }}></div>
+                      <span className="text-sm font-medium text-slate-200">
+                        Char: <span className="font-bold text-lg ml-1" style={{ color: t.color }}>{t.char}</span>
+                      </span>
+                    </div>
+                    <button onClick={() => handleRemove(t.char)} className="text-slate-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-slate-800">
+                      <Trash2 size={16} />
+                    </button>
                   </div>
-                  <button onClick={() => handleRemove(t.char)} className="text-slate-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-slate-800">
-                    <Trash2 size={16} />
-                  </button>
+                  {t.description && (
+                    <div className="text-xs text-slate-400 pl-9">
+                      {t.description}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -100,27 +111,36 @@ export const TrainTypeEditor: React.FC<TrainTypeEditorProps> = ({
             <label className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-2">
               Add New Type
             </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Char (e.g. 特)"
-                value={charInput}
-                onChange={(e) => {
-                  setCharInput(e.target.value);
-                  setError('');
-                }}
-                maxLength={2}
-                className="w-24 bg-slate-950/60 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500"
-              />
-              <input
-                type="color"
-                value={colorInput}
-                onChange={(e) => setColorInput(e.target.value)}
-                className="w-12 h-[42px] p-1 bg-slate-950/60 border border-slate-800 rounded-xl cursor-pointer"
-              />
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Char"
+                  value={charInput}
+                  onChange={(e) => {
+                    setCharInput(e.target.value);
+                    setError('');
+                  }}
+                  maxLength={2}
+                  className="w-20 bg-slate-950/60 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500"
+                />
+                <input
+                  type="color"
+                  value={colorInput}
+                  onChange={(e) => setColorInput(e.target.value)}
+                  className="w-12 h-[42px] p-1 bg-slate-950/60 border border-slate-800 rounded-xl cursor-pointer"
+                />
+                <input
+                  type="text"
+                  placeholder="Description (optional)"
+                  value={descriptionInput}
+                  onChange={(e) => setDescriptionInput(e.target.value)}
+                  className="flex-1 bg-slate-950/60 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 text-sm"
+                />
+              </div>
               <button
                 onClick={handleAdd}
-                className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-4 py-2 font-medium flex items-center justify-center transition-colors"
+                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-4 py-2 font-medium flex items-center justify-center transition-colors mt-1"
               >
                 <Plus size={18} className="mr-1" /> Add
               </button>

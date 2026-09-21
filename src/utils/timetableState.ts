@@ -6,6 +6,7 @@ export interface TimetableRow {
 export interface TrainType {
   char: string;
   color: string;
+  description?: string;
 }
 
 export function getDefaultRows(colCount: number): TimetableRow[] {
@@ -93,12 +94,16 @@ export function parseHash(hash: string): { headers: string[]; rows: TimetableRow
     const typesStr = hashParts[2];
     if (typesStr) {
       const types = typesStr.split(',').map(t => {
-        const [charEnc, colorEnc] = t.split(':');
+        const [charEnc, colorEnc, descEnc] = t.split(':');
         try {
-          return {
+          const res: TrainType = {
             char: decodeURIComponent(charEnc),
             color: decodeURIComponent(colorEnc)
           };
+          if (descEnc) {
+            res.description = decodeURIComponent(descEnc);
+          }
+          return res;
         } catch {
           return null;
         }
@@ -118,7 +123,13 @@ export function serializeHash(headers: string[], rows: TimetableRow[], trainType
     return `${row.hour}:${minuteGroupsStr}`;
   }).join(';');
 
-  const typesPart = trainTypes.map(t => `${encodeURIComponent(t.char)}:${encodeURIComponent(t.color)}`).join(',');
+  const typesPart = trainTypes.map(t => {
+    let base = `${encodeURIComponent(t.char)}:${encodeURIComponent(t.color)}`;
+    if (t.description) {
+      base += `:${encodeURIComponent(t.description)}`;
+    }
+    return base;
+  }).join(',');
 
   return typesPart ? `${headersPart}#${timetablePart}#${typesPart}` : `${headersPart}#${timetablePart}`;
 }

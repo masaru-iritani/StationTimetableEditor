@@ -298,6 +298,26 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
         </table>
       </div>
 
+      {/* Train Types Footnote */}
+      {trainTypes.length > 0 && (
+        <div className="mt-4 px-2">
+          <div className="flex flex-wrap gap-4 items-center">
+            {trainTypes.map(t => (
+              <div key={t.char} className="flex items-center gap-1.5 text-sm">
+                <span className="font-bold text-base" style={{ color: t.color }}>
+                  {t.char}
+                </span>
+                {t.description && (
+                  <span className="text-slate-400">
+                    ... {t.description}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Guide/Help Legend */}
       <div className="mt-4 flex items-center gap-1.5 text-xs text-slate-500 px-2 justify-center sm:justify-start">
         <HelpCircle size={14} className="text-indigo-500/80" />
