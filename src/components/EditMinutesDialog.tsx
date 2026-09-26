@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import type { FC, KeyboardEvent } from 'react';
 import { X, Plus } from 'lucide-react';
 
 interface EditMinutesDialogProps {
@@ -11,7 +12,7 @@ interface EditMinutesDialogProps {
   onSave: (newMinutes: string[]) => void;
 }
 
-export const EditMinutesDialog: React.FC<EditMinutesDialogProps> = ({
+export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
   isOpen,
   onClose,
   hour,
@@ -76,7 +77,7 @@ export const EditMinutesDialog: React.FC<EditMinutesDialogProps> = ({
     onClose();
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleAddMinute(inputValue);
@@ -105,6 +106,7 @@ export const EditMinutesDialog: React.FC<EditMinutesDialogProps> = ({
           </div>
           <button 
             onClick={onClose}
+            aria-label="Close"
             className="text-slate-400 hover:text-slate-200 transition-colors p-1.5 rounded-lg hover:bg-slate-800/50"
           >
             <X size={18} />
@@ -148,6 +150,7 @@ export const EditMinutesDialog: React.FC<EditMinutesDialogProps> = ({
                     </div>
                     <button 
                       onClick={() => handleRemoveMinute(min)}
+                      aria-label={`Remove ${min}`}
                       className="text-indigo-400 hover:text-red-400 transition-colors ml-1"
                     >
                       <X size={14} />
@@ -181,6 +184,7 @@ export const EditMinutesDialog: React.FC<EditMinutesDialogProps> = ({
               />
               <button
                 onClick={() => handleAddMinute(inputValue)}
+                aria-label="Add minute"
                 className="bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-xl px-4 py-2 font-medium flex items-center justify-center transition-colors"
               >
                 <Plus size={18} />

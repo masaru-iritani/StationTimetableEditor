@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { FC } from 'react';
 import { Plus, Trash2, HelpCircle } from 'lucide-react';
 import type { TimetableRow } from '../utils/timetableState';
 import { EditableHeader } from './EditableHeader';
@@ -11,7 +12,7 @@ interface TimetableGridProps {
   onChange: (headers: string[], rows: TimetableRow[]) => void;
 }
 
-export const TimetableGrid: React.FC<TimetableGridProps> = ({
+export const TimetableGrid: FC<TimetableGridProps> = ({
   headers,
   rows,
   trainTypes,
@@ -145,7 +146,8 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
                     {headers.length > 1 && (
                       <button
                         onClick={() => handleRemoveColumn(idx)}
-                        className="text-slate-500 hover:text-red-400 text-[10px] font-medium absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-slate-800/40"
+                        aria-label="Delete route column"
+                        className="text-slate-500 hover:text-red-400 text-[10px] font-medium absolute top-2 right-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity p-1 rounded hover:bg-slate-800/40 focus:outline-none"
                         title="Delete route column"
                       >
                         Remove
@@ -204,7 +206,7 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
 
                 return (
                   <tr 
-                    key={row.hour} 
+                    key={`${row.hour}-${rowIndex}`} 
                     className="border-b border-slate-800/60 hover:bg-slate-900/10 transition-colors"
                   >
                     {/* Hour cell */}
@@ -216,42 +218,47 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
                     {row.minutes.map((mins, colIdx) => (
                       <td
                         key={colIdx}
-                        onClick={() => handleCellClick(row.hour, colIdx)}
-                        className="px-4 py-3 border-r border-slate-800 cursor-pointer hover:bg-slate-800/20 transition-all group min-h-[48px]"
+                        className="px-4 py-3 border-r border-slate-800 group min-h-[48px]"
                       >
-                        {mins.length === 0 ? (
-                          <div className="text-slate-700 group-hover:text-slate-500 text-xs italic text-center font-mono py-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                            tap to add
-                          </div>
-                        ) : (
-                          <div className="flex flex-wrap justify-center gap-1.5">
-                            {mins.map((min) => {
-                              const match = min.match(/^(\d+)(.*)$/);
-                              const numStr = match ? match[1] : min;
-                              const charStr = match ? match[2] : '';
-                              const trainType = trainTypes.find(t => t.char === charStr);
-                              
-                              return (
-                                <div
-                                  key={min}
-                                  className="inline-flex items-baseline gap-1 px-2.5 py-1 bg-slate-800 group-hover:bg-slate-700 border border-slate-700/80 group-hover:border-indigo-500/30 text-slate-300 group-hover:text-indigo-200 rounded-md font-mono font-medium transition-all"
-                                >
-                                  {trainType ? (
-                                    <>
-                                      <span className="text-2xl" style={{ color: trainType.color }}>{numStr}</span>
-                                      {charStr && <span className="text-xs text-slate-300 group-hover:text-indigo-200">{charStr}</span>}
-                                    </>
-                                  ) : (
-                                    <>
-                                      <span className="text-2xl">{numStr}</span>
-                                      {charStr && <span className="text-xs">{charStr}</span>}
-                                    </>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleCellClick(row.hour, colIdx)}
+                          className="w-full h-full text-left"
+                        >
+                          {mins.length === 0 ? (
+                            <div className="text-slate-700 group-hover:text-slate-500 text-xs italic text-center font-mono py-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              tap to add
+                            </div>
+                          ) : (
+                            <div className="flex flex-wrap justify-center gap-1.5">
+                              {mins.map((min) => {
+                                const match = min.match(/^(\d+)(.*)$/);
+                                const numStr = match ? match[1] : min;
+                                const charStr = match ? match[2] : '';
+                                const trainType = trainTypes.find(t => t.char === charStr);
+                                
+                                return (
+                                  <div
+                                    key={min}
+                                    className="inline-flex items-baseline gap-1 px-2.5 py-1 bg-slate-800 group-hover:bg-slate-700 border border-slate-700/80 group-hover:border-indigo-500/30 text-slate-300 group-hover:text-indigo-200 rounded-md font-mono font-medium transition-all"
+                                  >
+                                    {trainType ? (
+                                      <>
+                                        <span className="text-2xl" style={{ color: trainType.color }}>{numStr}</span>
+                                        {charStr && <span className="text-xs text-slate-300 group-hover:text-indigo-200">{charStr}</span>}
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span className="text-2xl">{numStr}</span>
+                                        {charStr && <span className="text-xs">{charStr}</span>}
+                                      </>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </button>
                       </td>
                     ))}
 
@@ -260,6 +267,7 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
                       {canDelete && (
                         <button
                           onClick={() => handleRemoveRow(rowIndex)}
+                          aria-label="Remove empty hour row"
                           className="mx-auto flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white transition-all cursor-pointer border border-red-500/20"
                           title="Remove empty hour row"
                         >

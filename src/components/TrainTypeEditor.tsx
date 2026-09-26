@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import type { FC } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import type { TrainType } from '../utils/timetableState';
 
@@ -9,7 +10,7 @@ interface TrainTypeEditorProps {
   onSave: (trainTypes: TrainType[]) => void;
 }
 
-export const TrainTypeEditor: React.FC<TrainTypeEditorProps> = ({
+export const TrainTypeEditor: FC<TrainTypeEditorProps> = ({
   isOpen,
   onClose,
   trainTypes,
@@ -67,7 +68,7 @@ export const TrainTypeEditor: React.FC<TrainTypeEditorProps> = ({
       <div className="glass-panel relative w-full max-w-md overflow-hidden rounded-2xl p-6 shadow-2xl">
         <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
           <h3 className="text-lg font-semibold text-slate-100">Manage Train Types</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800/50">
+          <button onClick={onClose} aria-label="Close" className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800/50">
             <X size={18} />
           </button>
         </div>

@@ -24,7 +24,7 @@ export function getDefaultRows(colCount: number): TimetableRow[] {
 export function parseHash(hash: string): { headers: string[]; rows: TimetableRow[]; trainTypes: TrainType[] } {
   const cleanHash = hash.startsWith('#') ? hash.slice(1) : hash;
   const hashParts = cleanHash.split('#');
-  
+
   if (hashParts.length < 2 || !hashParts[0]) {
     return { headers: [''], rows: getDefaultRows(1), trainTypes: [] };
   }
@@ -38,40 +38,56 @@ export function parseHash(hash: string): { headers: string[]; rows: TimetableRow
   });
 
   const timetableStr = hashParts[1];
-  const rows: TimetableRow[] = [];
+
+  // Build a map of hour -> minutes arrays so duplicate hours are merged
+  const rowsMap = new Map<number, string[][]>();
 
   if (timetableStr) {
-    const entries = timetableStr.split(';');
+    const entries = timetableStr.split(';').filter(Boolean);
     entries.forEach(entry => {
       const [hourStr, ...minutesGroups] = entry.split(':');
       const hour = parseInt(hourStr, 10);
       if (isNaN(hour)) return;
 
-      const minutes: string[][] = minutesGroups.map(group => {
+      const minutes = minutesGroups.map(group => {
         if (!group) return [];
         return group.split(',')
           .map(m => m.trim())
-          .filter(min => min !== '')
+          .filter(Boolean)
           .map(min => {
             let decoded = min;
-            try {
-              decoded = decodeURIComponent(min);
-            } catch (e) {}
+            try { decoded = decodeURIComponent(min); } catch {}
             const match = decoded.match(/^(\d+)(.*)$/);
             if (!match) return null;
             const num = parseInt(match[1], 10);
             if (num < 0 || num >= 60) return null;
             return num.toString().padStart(2, '0') + match[2];
           })
-          .filter((min): min is string => min !== null);
+          .filter((m): m is string => m !== null);
       });
 
-      rows.push({ hour, minutes });
+      if (!rowsMap.has(hour)) {
+        rowsMap.set(hour, minutes as string[][]);
+      } else {
+        const existing = rowsMap.get(hour)!;
+        const maxCols = Math.max(existing.length, minutes.length);
+        for (let i = 0; i < maxCols; i++) {
+          const a = existing[i] ?? [];
+          const b = minutes[i] ?? [];
+          const merged = Array.from(new Set([...a, ...b]));
+          merged.sort((x, y) => parseInt(x, 10) - parseInt(y, 10));
+          existing[i] = merged;
+        }
+        rowsMap.set(hour, existing);
+      }
     });
   }
 
-  // Ensure rows has elements, default to 6-24 if empty
-  if (rows.length === 0) {
+  // Convert map to rows array
+  const rows: TimetableRow[] = Array.from(rowsMap.entries()).map(([hour, minutes]) => ({ hour, minutes }));
+
+  // If timetable part was present but empty (e.g. headers#), preserve an empty set of rows.
+  if (rows.length === 0 && timetableStr !== '') {
     rows.push(...getDefaultRows(headers.length));
   }
 
