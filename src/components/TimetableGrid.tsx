@@ -226,7 +226,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                           className="w-full h-full text-left"
                         >
                           {mins.length === 0 ? (
-                            <div className="text-slate-700 group-hover:text-slate-500 text-xs italic text-center font-mono py-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="text-slate-700 group-hover:text-slate-500 group-focus-within:text-slate-500 text-xs italic text-center font-mono py-1.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
                               tap to add
                             </div>
                           ) : (
@@ -240,12 +240,12 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                                 return (
                                   <div
                                     key={min}
-                                    className="inline-flex items-baseline gap-1 px-2.5 py-1 bg-slate-800 group-hover:bg-slate-700 border border-slate-700/80 group-hover:border-indigo-500/30 text-slate-300 group-hover:text-indigo-200 rounded-md font-mono font-medium transition-all"
+                                    className="inline-flex items-baseline gap-1 px-2.5 py-1 bg-slate-800 group-hover:bg-slate-700 group-focus-within:bg-slate-700 border border-slate-700/80 group-hover:border-indigo-500/30 group-focus-within:border-indigo-500/30 text-slate-300 group-hover:text-indigo-200 group-focus-within:text-indigo-200 rounded-md font-mono font-medium transition-all"
                                   >
                                     {trainType ? (
                                       <>
                                         <span className="text-2xl" style={{ color: trainType.color }}>{numStr}</span>
-                                        {charStr && <span className="text-xs text-slate-300 group-hover:text-indigo-200">{charStr}</span>}
+                                        {charStr && <span className="text-xs text-slate-300 group-hover:text-indigo-200 group-focus-within:text-indigo-200">{charStr}</span>}
                                       </>
                                     ) : (
                                       <>

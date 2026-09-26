@@ -92,7 +92,7 @@ export const TrainTypeEditor: FC<TrainTypeEditorProps> = ({
                         Char: <span className="font-bold text-lg ml-1" style={{ color: t.color }}>{t.char}</span>
                       </span>
                     </div>
-                    <button onClick={() => handleRemove(t.char)} className="text-slate-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-slate-800">
+                    <button onClick={() => handleRemove(t.char)} aria-label={`Remove train type ${t.char}`} title={`Remove ${t.char}`} className="text-slate-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-slate-800">
                       <Trash2 size={16} />
                     </button>
                   </div>
