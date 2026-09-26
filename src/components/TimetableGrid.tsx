@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { FC } from 'react';
 import { Plus, Trash2, HelpCircle } from 'lucide-react';
 import type { TimetableRow } from '../utils/timetableState';
@@ -112,6 +112,43 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
     onChange(headers, newRows);
   };
 
+  // Maintain stable per-column IDs so EditableHeader components don't accidentally retain other column state
+  const headerIdsRef = useRef<string[]>([]);
+  const prevHeadersRef = useRef<string[]>([]);
+  const ensureHeaderIds = () => {
+    const prev = prevHeadersRef.current;
+    // Fast-path: no change
+    if (headerIdsRef.current.length === headers.length && prev.length === headers.length && headers.every((h, i) => h === prev[i])) {
+      return;
+    }
+
+    const prevIds = headerIdsRef.current;
+    const usedPrev = new Array(prevIds.length).fill(false);
+    const newIds: string[] = [];
+
+    for (let i = 0; i < headers.length; i++) {
+      const name = headers[i];
+      let found = -1;
+      for (let j = 0; j < prev.length; j++) {
+        if (!usedPrev[j] && prev[j] === name) {
+          found = j;
+          break;
+        }
+      }
+      if (found !== -1) {
+        newIds.push(prevIds[found]);
+        usedPrev[found] = true;
+      } else {
+        newIds.push(`route-${Math.random().toString(36).slice(2,9)}`);
+      }
+    }
+
+    headerIdsRef.current = newIds;
+    prevHeadersRef.current = headers.slice();
+  };
+
+  ensureHeaderIds();
+
   const activeMinutes = 
     activeHour !== null && activeColIndex !== null
       ? rows.find(r => r.hour === activeHour)?.minutes[activeColIndex] || []
@@ -134,7 +171,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
               {/* Route columns */}
               {headers.map((headerText, idx) => (
                 <th 
-                                key={headerText || `route-${idx}`} 
+                                key={headerIdsRef.current[idx] || `route-${idx}`} 
                   className="min-w-[160px] px-4 py-2 border-r border-slate-800 text-center relative group"
                 >
                   <div className="flex flex-col items-center justify-center">
