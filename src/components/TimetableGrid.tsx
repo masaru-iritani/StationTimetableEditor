@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { FC } from 'react';
 import { Plus, Trash2, HelpCircle } from 'lucide-react';
 import type { TimetableRow } from '../utils/timetableState';
@@ -113,18 +113,23 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
   };
 
   // Maintain stable per-column IDs so EditableHeader components don't accidentally retain other column state
-  const headerIdsRef = useRef<string[]>([]);
+  const [headerIds, setHeaderIds] = useState<string[]>([]);
   const prevHeadersRef = useRef<string[]>([]);
-  const ensureHeaderIds = () => {
+
+  // Reconcile header IDs when headers change. Run in effect to avoid impure work during render.
+  useEffect(() => {
     const prev = prevHeadersRef.current;
-    // Fast-path: no change
-    if (headerIdsRef.current.length === headers.length && prev.length === headers.length && headers.every((h, i) => h === prev[i])) {
+    const prevIds = headerIds;
+
+    // Fast-path: nothing changed
+    if (prev.length === headers.length && headers.every((h, i) => h === prev[i])) {
+      prevHeadersRef.current = headers.slice();
       return;
     }
 
-    const prevIds = headerIdsRef.current;
     const usedPrev = new Array(prevIds.length).fill(false);
     const newIds: string[] = [];
+    const genId = () => `route-${Math.random().toString(36).slice(2,9)}`;
 
     for (let i = 0; i < headers.length; i++) {
       const name = headers[i];
@@ -139,15 +144,13 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
         newIds.push(prevIds[found]);
         usedPrev[found] = true;
       } else {
-        newIds.push(`route-${Math.random().toString(36).slice(2,9)}`);
+        newIds.push(genId());
       }
     }
 
-    headerIdsRef.current = newIds;
+    setHeaderIds(newIds);
     prevHeadersRef.current = headers.slice();
-  };
-
-  ensureHeaderIds();
+  }, [headers, headerIds]);
 
   const activeMinutes = 
     activeHour !== null && activeColIndex !== null
@@ -171,7 +174,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
               {/* Route columns */}
               {headers.map((headerText, idx) => (
                 <th 
-                                key={headerIdsRef.current[idx] || `route-${idx}`} 
+                                key={headerIds[idx] || `route-${idx}`} 
                   className="min-w-[160px] px-4 py-2 border-r border-slate-800 text-center relative group"
                 >
                   <div className="flex flex-col items-center justify-center">

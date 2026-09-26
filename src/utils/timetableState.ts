@@ -65,7 +65,7 @@ export function parseHash(hash: string): { headers: string[]; rows: TimetableRow
           .filter(Boolean)
           .map(min => {
             let decoded = min;
-            try { decoded = decodeURIComponent(min); } catch {}
+          try { decoded = decodeURIComponent(min); } catch { /* ignore malformed encoding */ }
             const match = decoded.match(/^(\d+)(.*)$/);
             if (!match) return null;
             const num = parseInt(match[1], 10);

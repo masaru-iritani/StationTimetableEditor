@@ -24,13 +24,15 @@ export const TrainTypeEditor: FC<TrainTypeEditorProps> = ({
   const [descriptionInput, setDescriptionInput] = useState('');
 
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) return;
+    const id = setTimeout(() => {
       setTypes([...trainTypes]);
       setCharInput('');
       setColorInput('#ff0000');
       setDescriptionInput('');
       setError('');
-    }
+    }, 0);
+    return () => clearTimeout(id);
   }, [isOpen, trainTypes]);
 
   if (!isOpen) return null;

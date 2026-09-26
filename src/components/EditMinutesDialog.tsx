@@ -27,13 +27,15 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) return;
+    const id = setTimeout(() => {
       setCurrentMinutes([...minutes].sort((a, b) => parseInt(a) - parseInt(b)));
       setInputValue('');
       setError('');
       // Focus input after modal transition
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
+      inputRef.current?.focus();
+    }, 0);
+    return () => clearTimeout(id);
   }, [isOpen, minutes]);
 
   if (!isOpen) return null;

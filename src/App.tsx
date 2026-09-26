@@ -28,17 +28,49 @@ export default function App() {
         const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (saved) {
           try {
-            const parsed = JSON.parse(saved);
-            const validHeaders = Array.isArray(parsed?.headers) && parsed.headers.every((h: any) => typeof h === 'string');
-            const validRows = Array.isArray(parsed?.rows) && parsed.rows.every((r: any) => r && typeof r.hour === 'number' && Array.isArray(r.minutes));
-            const validTrainTypes = parsed?.trainTypes === undefined || (Array.isArray(parsed.trainTypes) && parsed.trainTypes.every((t: any) => t && typeof t.char === 'string' && typeof t.color === 'string'));
-            if (validHeaders && validRows && validTrainTypes) {
-              const safeHeaders = parsed.headers.map((h: any) => String(h));
-              const safeRows = parsed.rows.map((r: any) => ({
+            const parsed = JSON.parse(saved) as unknown;
+
+            type SavedState = {
+              headers: string[];
+              rows: Array<{ hour: number; minutes: string[][] }>;
+              trainTypes?: Array<{ char: string; color: string; description?: string }>;
+            };
+
+            const isSavedState = (v: unknown): v is SavedState => {
+              if (typeof v !== 'object' || v === null) return false;
+              const obj = v as Record<string, unknown>;
+              if (!Array.isArray(obj.headers) || !obj.headers.every(h => typeof h === 'string')) return false;
+              if (!Array.isArray(obj.rows)) return false;
+              for (const r of obj.rows) {
+                if (typeof r !== 'object' || r === null) return false;
+                const rr = r as Record<string, unknown>;
+                if (typeof rr.hour !== 'number') return false;
+                if (!Array.isArray(rr.minutes)) return false;
+                for (const col of rr.minutes) {
+                  if (!Array.isArray(col)) return false;
+                  for (const m of col) if (typeof m !== 'string') return false;
+                }
+              }
+              if (obj.trainTypes !== undefined) {
+                if (!Array.isArray(obj.trainTypes)) return false;
+                for (const t of obj.trainTypes) {
+                  if (typeof t !== 'object' || t === null) return false;
+                  const tt = t as Record<string, unknown>;
+                  if (typeof tt.char !== 'string' || typeof tt.color !== 'string') return false;
+                }
+              }
+              return true;
+            };
+
+            if (isSavedState(parsed)) {
+              const safeHeaders = parsed.headers;
+              const safeRows = parsed.rows.map((r) => ({
                 hour: Number(r.hour),
-                minutes: Array.isArray(r.minutes) ? r.minutes.map((col: any) => Array.isArray(col) ? col.map((m: any) => String(m)) : []) : []
+                minutes: r.minutes.map((col) => Array.isArray(col) ? col.map((m) => String(m)) : []),
               }));
-              const safeTrainTypes = Array.isArray(parsed.trainTypes) ? parsed.trainTypes.map((t: any) => ({ char: String(t.char), color: String(t.color), description: t.description ? String(t.description) : undefined })) : [];
+              const safeTrainTypes = Array.isArray(parsed.trainTypes)
+                ? parsed.trainTypes.map((t) => ({ char: String(t.char), color: String(t.color), description: t.description ? String(t.description) : undefined }))
+                : [];
 
               setHeaders(safeHeaders);
               setRows(safeRows);

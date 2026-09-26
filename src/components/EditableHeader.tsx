@@ -18,7 +18,8 @@ export const EditableHeader: FC<EditableHeaderProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setInputValue(value);
+    const id = setTimeout(() => setInputValue(value), 0);
+    return () => clearTimeout(id);
   }, [value]);
 
   useEffect(() => {
