@@ -52,7 +52,8 @@ export function parseHash(hash: string): { headers: string[]; rows: TimetableRow
 
       const minutes = minutesGroups.map(group => {
         if (!group) return [];
-        return group.split(',')
+
+        const parsed = group.split(',')
           .map(m => m.trim())
           .filter(Boolean)
           .map(min => {
@@ -65,6 +66,11 @@ export function parseHash(hash: string): { headers: string[]; rows: TimetableRow
             return num.toString().padStart(2, '0') + match[2];
           })
           .filter((m): m is string => m !== null);
+
+        // Deduplicate and sort this minute group
+        const unique = Array.from(new Set(parsed));
+        unique.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+        return unique;
       });
 
       if (!rowsMap.has(hour)) {
@@ -87,9 +93,15 @@ export function parseHash(hash: string): { headers: string[]; rows: TimetableRow
   // Convert map to rows array
   const rows: TimetableRow[] = Array.from(rowsMap.entries()).map(([hour, minutes]) => ({ hour, minutes }));
 
-  // If timetable part was present but empty (e.g. headers#), preserve an empty set of rows.
-  if (rows.length === 0 && timetableStr !== '') {
-    rows.push(...getDefaultRows(headers.length));
+  // If no rows were parsed:
+  // - If timetableStr is an empty string, the author intentionally set an empty timetable; preserve no rows.
+  // - If timetableStr was non-empty but parsing produced no valid rows, treat as malformed and fall back to defaults.
+  if (rows.length === 0) {
+    if (timetableStr === '') {
+      // intentionally empty timetable: keep rows empty
+    } else {
+      rows.push(...getDefaultRows(headers.length));
+    }
   }
 
   // Ensure every row has the same number of columns as the headers!

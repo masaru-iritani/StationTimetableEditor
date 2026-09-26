@@ -29,13 +29,25 @@ export default function App() {
         if (saved) {
           try {
             const parsed = JSON.parse(saved);
-            if (parsed.headers && parsed.rows) {
-              setHeaders(parsed.headers);
-              setRows(parsed.rows);
-              setTrainTypes(parsed.trainTypes || []);
+            const validHeaders = Array.isArray(parsed?.headers) && parsed.headers.every((h: any) => typeof h === 'string');
+            const validRows = Array.isArray(parsed?.rows) && parsed.rows.every((r: any) => r && typeof r.hour === 'number' && Array.isArray(r.minutes));
+            const validTrainTypes = parsed?.trainTypes === undefined || (Array.isArray(parsed.trainTypes) && parsed.trainTypes.every((t: any) => t && typeof t.char === 'string' && typeof t.color === 'string'));
+            if (validHeaders && validRows && validTrainTypes) {
+              const safeHeaders = parsed.headers.map((h: any) => String(h));
+              const safeRows = parsed.rows.map((r: any) => ({
+                hour: Number(r.hour),
+                minutes: Array.isArray(r.minutes) ? r.minutes.map((col: any) => Array.isArray(col) ? col.map((m: any) => String(m)) : []) : []
+              }));
+              const safeTrainTypes = Array.isArray(parsed.trainTypes) ? parsed.trainTypes.map((t: any) => ({ char: String(t.char), color: String(t.color), description: t.description ? String(t.description) : undefined })) : [];
+
+              setHeaders(safeHeaders);
+              setRows(safeRows);
+              setTrainTypes(safeTrainTypes);
               // Sync url hash on initial load from local storage
-              window.location.hash = serializeHash(parsed.headers, parsed.rows, parsed.trainTypes || []);
+              window.location.hash = serializeHash(safeHeaders, safeRows, safeTrainTypes);
               return;
+            } else {
+              console.warn('Saved state is malformed; ignoring.');
             }
           } catch (e) {
             console.error('Failed to parse saved state:', e);
