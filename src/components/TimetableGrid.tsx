@@ -134,7 +134,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
               {/* Route columns */}
               {headers.map((headerText, idx) => (
                 <th 
-                  key={idx} 
+                                key={headerText || `route-${idx}`} 
                   className="min-w-[160px] px-4 py-2 border-r border-slate-800 text-center relative group"
                 >
                   <div className="flex flex-col items-center justify-center">
