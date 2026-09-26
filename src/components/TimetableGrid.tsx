@@ -228,7 +228,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                         >
                           {mins.length === 0 ? (
                             <div className="text-slate-700 group-hover:text-slate-500 group-focus-within:text-slate-500 text-xs italic text-center font-mono py-1.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
-                              tap to add
+                                                        Click or press Enter to add
                             </div>
                           ) : (
                             <div className="flex flex-wrap justify-center gap-1.5">
@@ -321,7 +321,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
       {/* Guide/Help Legend */}
       <div className="mt-4 flex items-center gap-1.5 text-xs text-slate-500 px-2 justify-center sm:justify-start">
         <HelpCircle size={14} className="text-indigo-500/80" />
-        <span>Single-tap route names to rename them; tap cells to add or schedule departure minutes.</span>
+              <span>Click or press Enter/Space on route names to rename; click or press Enter/Space on cells to add or schedule departures.</span>
       </div>
 
       {/* Minutes edit dialog */}

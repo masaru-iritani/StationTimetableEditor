@@ -13,10 +13,11 @@ The "Station Timetable Editor" is a Single Page Application (SPA) designed for e
 
 ## Usage
 
-- **Adding a Time Slot**: Hover near the bottom of the timetable to display the plus button and click it to add a new slot.
-- **Editing Time Slots**: Double-click on a timetable cell to edit its contents.
-- **Deleting a Time Slot**: Hover near the left border of the last row. If it's empty (except for the first column), a red remove button will appear for deletion.
-- **Sharing Timetable States**: Use the dynamically updated URL hash to bookmark or share the current state of the timetable.
+- **Adding an Hour / Time Slot**: Use the Add (plus) buttons above or below the grid to insert hours. These controls are focusable and operable with the keyboard (Enter / Space).
+- **Editing Time Slots**: Click a cell, or focus it and press Enter/Space, to open the minute editor.
+- **Renaming a Route**: Click a route name (or focus and press Enter/Space) to edit it inline. Empty route names are prevented by the editor.
+- **Deleting an Hour**: If the first or last hour row is empty, a Remove button appears at the end of the row — activate it to delete that hour.
+- **Sharing Timetable States**: Use the Copy Share Link button to copy a permalink; the URL hash encodes the timetable state for bookmarking or sharing.
 
 ## Development
 

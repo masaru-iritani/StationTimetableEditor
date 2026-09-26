@@ -23,11 +23,18 @@ export function getDefaultRows(colCount: number): TimetableRow[] {
 
 export function parseHash(hash: string): { headers: string[]; rows: TimetableRow[]; trainTypes: TrainType[] } {
   const cleanHash = hash.startsWith('#') ? hash.slice(1) : hash;
-  const hashParts = cleanHash.split('#');
+  let hashParts = cleanHash.split('#');
 
-  // If there's no timetable part, fallback to a default single-column timetable.
+  // If there's no timetable part, check whether the single fragment looks like a timetable (e.g., starts with an hour).
+  // In that case, treat it as an empty headers part and the fragment as the timetable. Otherwise fallback to defaults.
   if (hashParts.length < 2) {
-    return { headers: [''], rows: getDefaultRows(1), trainTypes: [] };
+    const possibleTimetable = cleanHash;
+    if (possibleTimetable !== '' && (/^\d+:/.test(possibleTimetable) || (/;/.test(possibleTimetable) && /\d:/.test(possibleTimetable)))) {
+      // Represent as ['', timetableStr]
+      hashParts = ['', possibleTimetable];
+    } else {
+      return { headers: [''], rows: getDefaultRows(1), trainTypes: [] };
+    }
   }
 
   const headers = hashParts[0].split('|').map(text => {
