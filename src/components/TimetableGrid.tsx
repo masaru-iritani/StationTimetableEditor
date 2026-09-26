@@ -160,11 +160,12 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
               <th className="w-16 px-4 py-2 text-center align-middle">
                 <button
                   onClick={handleAddColumn}
-                  className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600/20 hover:bg-indigo-600/35 text-indigo-400 hover:text-indigo-300 border border-indigo-500/20 transition-all cursor-pointer"
-                  title="Add route column"
-                >
-                  <Plus size={20} />
-                </button>
+                                  aria-label="Add route column"
+                                  className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600/20 hover:bg-indigo-600/35 text-indigo-400 hover:text-indigo-300 border border-indigo-500/20 transition-all cursor-pointer"
+                                  title="Add route column"
+                                >
+                                  <Plus size={20} />
+                                </button>
               </th>
             </tr>
           </thead>
