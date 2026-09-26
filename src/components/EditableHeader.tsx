@@ -30,6 +30,12 @@ export const EditableHeader: FC<EditableHeaderProps> = ({
 
   const handleSave = () => {
     const trimmed = inputValue.trim();
+    // Prevent saving an empty route name — restore the previous value instead
+    if (trimmed === '') {
+      setInputValue(value);
+      setIsEditing(false);
+      return;
+    }
     onSave(trimmed);
     setIsEditing(false);
   };

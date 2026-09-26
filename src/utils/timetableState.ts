@@ -25,7 +25,8 @@ export function parseHash(hash: string): { headers: string[]; rows: TimetableRow
   const cleanHash = hash.startsWith('#') ? hash.slice(1) : hash;
   const hashParts = cleanHash.split('#');
 
-  if (hashParts.length < 2 || !hashParts[0]) {
+  // If there's no timetable part, fallback to a default single-column timetable.
+  if (hashParts.length < 2) {
     return { headers: [''], rows: getDefaultRows(1), trainTypes: [] };
   }
 
