@@ -336,7 +336,8 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                                         {dChar ?? '\u00A0'}
                                       </span>
                                       <span
-                                        className="text-[10px] font-sans font-medium text-slate-300 hover:text-indigo-200 select-none"
+                                        className="text-[10px] font-sans font-medium select-none"
+                                        style={{ color: trainType ? trainType.color : undefined }}
                                         title={trainType?.description || tChar || ''}
                                       >
                                         {tChar ?? '\u00A0'}
