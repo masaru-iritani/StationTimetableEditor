@@ -287,31 +287,29 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                                 return (
                                   <div
                                     key={min}
-                                    className="inline-flex items-baseline gap-1 px-2.5 py-1 bg-slate-800 group-hover:bg-slate-700 group-focus-within:bg-slate-700 border border-slate-700/80 group-hover:border-indigo-500/30 group-focus-within:border-indigo-500/30 text-slate-300 group-hover:text-indigo-200 group-focus-within:text-indigo-200 rounded-md font-mono font-medium transition-all"
+                                    className="inline-flex items-center gap-0.5 px-2.5 py-1 bg-slate-800 group-hover:bg-slate-700 group-focus-within:bg-slate-700 border border-slate-700/80 group-hover:border-indigo-500/30 group-focus-within:border-indigo-500/30 text-slate-300 group-hover:text-indigo-200 group-focus-within:text-indigo-200 rounded-md font-mono font-medium transition-all"
                                   >
-                                    <div className="relative inline-flex items-start">
-                                      <span
-                                        className="text-2xl font-bold font-mono"
-                                        style={{ color: trainType ? trainType.color : undefined }}
-                                      >
-                                        {numStr}
-                                      </span>
-                                      {dChar && (
+                                    <span
+                                      className="text-2xl font-bold font-mono"
+                                      style={{ color: trainType ? trainType.color : undefined }}
+                                    >
+                                      {numStr}
+                                    </span>
+                                    {(dChar || tChar) && (
+                                      <div className="flex flex-col items-start leading-none ml-0.5">
                                         <span
-                                          className="text-[10px] leading-none font-sans font-medium text-slate-300 ml-0.5 pt-0.5 select-none"
-                                          title={destination?.description || dChar}
+                                          className="text-[10px] font-sans font-medium text-slate-300 select-none"
+                                          title={destination?.description || dChar || ''}
                                         >
-                                          {dChar}
+                                          {dChar ?? '\u00A0'}
                                         </span>
-                                      )}
-                                    </div>
-                                    {tChar && (
-                                      <span
-                                        className="text-xs text-slate-300 group-hover:text-indigo-200 group-focus-within:text-indigo-200"
-                                        title={trainType?.description || tChar}
-                                      >
-                                        {tChar}
-                                      </span>
+                                        <span
+                                          className="text-[10px] font-sans font-medium text-slate-300 group-hover:text-indigo-200 group-focus-within:text-indigo-200 select-none"
+                                          title={trainType?.description || tChar || ''}
+                                        >
+                                          {tChar ?? '\u00A0'}
+                                        </span>
+                                      </div>
                                     )}
                                   </div>
                                 );
