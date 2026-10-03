@@ -25,6 +25,8 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [activeHour, setActiveHour] = useState<number | null>(null);
   const [activeColIndex, setActiveColIndex] = useState<number | null>(null);
+  /** The raw departure string being edited, or null when adding a new departure. */
+  const [activeDeparture, setActiveDeparture] = useState<string | null>(null);
 
   // Column management
   const handleAddColumn = () => {
@@ -93,26 +95,56 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
     return row.minutes.every(mins => mins.length === 0);
   };
 
-  // Cell editing
-  const handleCellClick = (hour: number, colIndex: number) => {
-    setActiveHour(hour);
-    setActiveColIndex(colIndex);
-    setDialogOpen(true);
-  };
-
-  const handleSaveCellMinutes = (newMinutes: string[]) => {
-    if (activeHour === null || activeColIndex === null) return;
-    
+  // Cell editing helpers
+  const updateCellMinutes = (hour: number, colIndex: number, updater: (prev: string[]) => string[]) => {
     const newRows = rows.map(row => {
-      if (row.hour === activeHour) {
+      if (row.hour === hour) {
         const updatedMinutes = [...row.minutes];
-        updatedMinutes[activeColIndex] = newMinutes;
+        updatedMinutes[colIndex] = updater(updatedMinutes[colIndex] ?? []);
         return { ...row, minutes: updatedMinutes };
       }
       return row;
     });
-    
     onChange(headers, newRows);
+  };
+
+  /** Open the dialog in add mode when clicking an empty cell area. */
+  const handleEmptyCellClick = (hour: number, colIndex: number) => {
+    setActiveHour(hour);
+    setActiveColIndex(colIndex);
+    setActiveDeparture(null);
+    setDialogOpen(true);
+  };
+
+  /** Open the dialog in edit mode when clicking an existing departure chip. */
+  const handleDepartureClick = (hour: number, colIndex: number, dep: string) => {
+    setActiveHour(hour);
+    setActiveColIndex(colIndex);
+    setActiveDeparture(dep);
+    setDialogOpen(true);
+  };
+
+  const handleAddDeparture = (newDep: string) => {
+    if (activeHour === null || activeColIndex === null) return;
+    updateCellMinutes(activeHour, activeColIndex, (prev) => {
+      if (prev.includes(newDep)) return prev;
+      return [...prev, newDep].sort((a, b) => parseInt(a, 10) - parseInt(b, 10) || a.localeCompare(b));
+    });
+  };
+
+  const handleUpdateDeparture = (oldDep: string, newDep: string) => {
+    if (activeHour === null || activeColIndex === null) return;
+    updateCellMinutes(activeHour, activeColIndex, (prev) => {
+      // Replace oldDep with newDep (no-op if they're the same), avoid duplicates
+      const without = prev.filter(m => m !== oldDep);
+      if (without.includes(newDep)) return without;
+      return [...without, newDep].sort((a, b) => parseInt(a, 10) - parseInt(b, 10) || a.localeCompare(b));
+    });
+  };
+
+  const handleDeleteDeparture = (dep: string) => {
+    if (activeHour === null || activeColIndex === null) return;
+    updateCellMinutes(activeHour, activeColIndex, (prev) => prev.filter(m => m !== dep));
   };
 
   // Maintain stable per-column IDs so EditableHeader components don't accidentally retain other column state
@@ -155,13 +187,10 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
     prevHeadersRef.current = headers.slice();
   }, [headers, headerIds]);
 
-  const activeMinutes = 
-    activeHour !== null && activeColIndex !== null
-      ? rows.find(r => r.hour === activeHour)?.minutes[activeColIndex] || []
-      : [];
 
-  const activeRouteName = 
+  const activeRouteName =
     activeColIndex !== null ? headers[activeColIndex] : '';
+
 
   return (
     <div className="w-full">
@@ -262,61 +291,63 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                     {row.minutes.map((mins, colIdx) => (
                       <td
                         key={colIdx}
-                        className="px-4 py-3 border-r border-slate-800 group min-h-[48px]"
+                        className="px-4 py-3 border-r border-slate-800 group min-h-[48px] cursor-pointer"
+                        onClick={() => handleEmptyCellClick(row.hour, colIdx)}
+                        title="Click to add a departure"
                       >
-                        <button
-                          type="button"
-                          onClick={() => handleCellClick(row.hour, colIdx)}
-                          className="w-full h-full text-left"
-                        >
-                          {mins.length === 0 ? (
-                            <div className="text-slate-700 group-hover:text-slate-500 group-focus-within:text-slate-500 text-xs italic text-center font-mono py-1.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
-                                                        Click or press Enter to add
-                            </div>
-                          ) : (
-                            <div className="flex flex-wrap justify-center gap-1.5">
-                              {mins.map((min) => {
-                                const { minute: numStr, trainType: tChar, destination: dChar } = parseDeparture(
-                                  min,
-                                  trainTypes,
-                                  destinations
-                                );
-                                const trainType = trainTypes.find((t) => t.char === tChar);
-                                const destination = destinations.find((d) => d.char === dChar);
-                                
-                                return (
-                                  <div
-                                    key={min}
-                                    className="inline-flex items-center gap-0.5 px-2.5 py-1 bg-slate-800 group-hover:bg-slate-700 group-focus-within:bg-slate-700 border border-slate-700/80 group-hover:border-indigo-500/30 group-focus-within:border-indigo-500/30 text-slate-300 group-hover:text-indigo-200 group-focus-within:text-indigo-200 rounded-md font-mono font-medium transition-all"
+                        {mins.length === 0 ? (
+                          <div className="text-slate-700 group-hover:text-slate-500 text-xs italic text-center font-mono py-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            Click to add
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap justify-center gap-1.5">
+                            {mins.map((min) => {
+                              const { minute: numStr, trainType: tChar, destination: dChar } = parseDeparture(
+                                min,
+                                trainTypes,
+                                destinations
+                              );
+                              const trainType = trainTypes.find((t) => t.char === tChar);
+                              const destination = destinations.find((d) => d.char === dChar);
+
+                              return (
+                                <button
+                                  key={min}
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDepartureClick(row.hour, colIdx, min);
+                                  }}
+                                  title="Click to edit this departure"
+                                  className="inline-flex items-center gap-0.5 px-2.5 py-1 bg-slate-800 hover:bg-indigo-700/40 border border-slate-700/80 hover:border-indigo-500/60 text-slate-300 hover:text-indigo-200 rounded-md font-mono font-medium transition-all cursor-pointer"
+                                >
+                                  <span
+                                    className="text-2xl font-bold font-mono"
+                                    style={{ color: trainType ? trainType.color : undefined }}
                                   >
-                                    <span
-                                      className="text-2xl font-bold font-mono"
-                                      style={{ color: trainType ? trainType.color : undefined }}
-                                    >
-                                      {numStr}
-                                    </span>
-                                    {(dChar || tChar) && (
-                                      <div className="flex flex-col items-start leading-none ml-0.5">
-                                        <span
-                                          className="text-[10px] font-sans font-medium text-slate-300 select-none"
-                                          title={destination?.description || dChar || ''}
-                                        >
-                                          {dChar ?? '\u00A0'}
-                                        </span>
-                                        <span
-                                          className="text-[10px] font-sans font-medium text-slate-300 group-hover:text-indigo-200 group-focus-within:text-indigo-200 select-none"
-                                          title={trainType?.description || tChar || ''}
-                                        >
-                                          {tChar ?? '\u00A0'}
-                                        </span>
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </button>
+                                    {numStr}
+                                  </span>
+                                  {(dChar || tChar) && (
+                                    <div className="flex flex-col items-start leading-none ml-0.5">
+                                      <span
+                                        className="text-[10px] font-sans font-medium text-slate-300 select-none"
+                                        title={destination?.description || dChar || ''}
+                                      >
+                                        {dChar ?? '\u00A0'}
+                                      </span>
+                                      <span
+                                        className="text-[10px] font-sans font-medium text-slate-300 hover:text-indigo-200 select-none"
+                                        title={trainType?.description || tChar || ''}
+                                      >
+                                        {tChar ?? '\u00A0'}
+                                      </span>
+                                    </div>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
                       </td>
                     ))}
 
@@ -399,19 +430,21 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
       {/* Guide/Help Legend */}
       <div className="mt-4 flex items-center gap-1.5 text-xs text-slate-500 px-2 justify-center sm:justify-start">
         <HelpCircle size={14} className="text-indigo-500/80" />
-              <span>Click or press Enter/Space on route names to rename; click or press Enter/Space on cells to add or schedule departures.</span>
+        <span>Click a departure to edit or delete it; click an empty cell area to add a new departure.</span>
       </div>
 
-      {/* Minutes edit dialog */}
+      {/* Per-departure dialog */}
       <EditMinutesDialog
         isOpen={dialogOpen}
         onClose={() => setDialogOpen(false)}
         hour={activeHour || 0}
         routeName={activeRouteName}
-        minutes={activeMinutes}
+        departure={activeDeparture}
         trainTypes={trainTypes}
         destinations={destinations}
-        onSave={handleSaveCellMinutes}
+        onAdd={handleAddDeparture}
+        onUpdate={handleUpdateDeparture}
+        onDelete={handleDeleteDeparture}
       />
     </div>
   );
