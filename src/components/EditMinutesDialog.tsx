@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import type { FC, KeyboardEvent } from 'react';
 import { X, Plus } from 'lucide-react';
-import type { TrainType } from '../utils/timetableState';
+import type { TrainType, Destination } from '../utils/timetableState';
+import { parseDeparture, formatDeparture } from '../utils/timetableState';
 
 interface EditMinutesDialogProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface EditMinutesDialogProps {
   routeName: string;
   minutes: string[];
   trainTypes: TrainType[];
+  destinations: Destination[];
   onSave: (newMinutes: string[]) => void;
 }
 
@@ -20,20 +22,25 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
   routeName,
   minutes,
   trainTypes,
+  destinations,
   onSave,
 }) => {
   const [currentMinutes, setCurrentMinutes] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [selectedTrainType, setSelectedTrainType] = useState<string>('');
+  const [selectedDestination, setSelectedDestination] = useState<string>('');
   const [error, setError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isOpen) return;
     const id = setTimeout(() => {
-      setCurrentMinutes([...minutes].sort((a, b) => parseInt(a) - parseInt(b)));
+      setCurrentMinutes(
+        [...minutes].sort((a, b) => parseInt(a, 10) - parseInt(b, 10) || a.localeCompare(b))
+      );
       setInputValue('');
       setSelectedTrainType('');
+      setSelectedDestination('');
       setError('');
       // Focus input after modal transition
       inputRef.current?.focus();
@@ -59,33 +66,56 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
       return;
     }
 
-    const charSuffix = match[2] ? match[2] : selectedTrainType;
-    const formatted = parsed.toString().padStart(2, '0') + charSuffix;
+    const numStr = parsed.toString().padStart(2, '0');
+    let tChar = selectedTrainType;
+    let dChar = selectedDestination;
+    if (match[2]) {
+      const parsedDeparture = parseDeparture(trimmed, trainTypes, destinations);
+      if (parsedDeparture.trainType) tChar = parsedDeparture.trainType;
+      if (parsedDeparture.destination) dChar = parsedDeparture.destination;
+    }
+
+    const formatted = formatDeparture(numStr, tChar, dChar);
     if (currentMinutes.includes(formatted)) {
-      setError('This minute is already added.');
+      setError('This departure is already scheduled.');
       return;
     }
 
-    const updated = [...currentMinutes, formatted].sort((a, b) => parseInt(a) - parseInt(b));
+    const updated = [...currentMinutes, formatted].sort(
+      (a, b) => parseInt(a, 10) - parseInt(b, 10) || a.localeCompare(b)
+    );
     setCurrentMinutes(updated);
     setInputValue('');
     setError('');
     inputRef.current?.focus();
   };
 
-  const handleUpdateMinuteTrainType = (oldMin: string, newChar: string) => {
-    const match = oldMin.match(/^(\d+)(.*)$/);
-    if (!match) return;
-    const numStr = match[1];
-    const newMin = numStr + newChar;
+  const handleUpdateMinuteTrainType = (oldMin: string, newTypeChar: string) => {
+    const info = parseDeparture(oldMin, trainTypes, destinations);
+    const newMin = formatDeparture(info.minute, newTypeChar, info.destination);
     if (newMin === oldMin) return;
     if (currentMinutes.includes(newMin)) {
-      setError(`Minute ${newMin} is already scheduled.`);
+      setError(`Departure is already scheduled.`);
       return;
     }
     const updated = currentMinutes
       .map((m) => (m === oldMin ? newMin : m))
-      .sort((a, b) => parseInt(a) - parseInt(b));
+      .sort((a, b) => parseInt(a, 10) - parseInt(b, 10) || a.localeCompare(b));
+    setCurrentMinutes(updated);
+    setError('');
+  };
+
+  const handleUpdateMinuteDestination = (oldMin: string, newDestChar: string) => {
+    const info = parseDeparture(oldMin, trainTypes, destinations);
+    const newMin = formatDeparture(info.minute, info.trainType, newDestChar);
+    if (newMin === oldMin) return;
+    if (currentMinutes.includes(newMin)) {
+      setError(`Departure is already scheduled.`);
+      return;
+    }
+    const updated = currentMinutes
+      .map((m) => (m === oldMin ? newMin : m))
+      .sort((a, b) => parseInt(a, 10) - parseInt(b, 10) || a.localeCompare(b));
     setCurrentMinutes(updated);
     setError('');
   };
@@ -108,6 +138,11 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
       onClose();
     }
   };
+
+  const activeLabels: string[] = [];
+  if (selectedTrainType) activeLabels.push(`Type: ${selectedTrainType}`);
+  if (selectedDestination) activeLabels.push(`Dest: ${selectedDestination}`);
+  const activeLabelText = activeLabels.length > 0 ? ` (${activeLabels.join(', ')})` : '';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -148,45 +183,77 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
           ) : (
             <div className="mt-2 flex flex-wrap gap-2 max-h-40 overflow-y-auto p-1">
               {currentMinutes.map((min) => {
-                const match = min.match(/^(\d+)(.*)$/);
-                const numStr = match ? match[1] : min;
-                const charStr = match ? match[2] : '';
-                const trainType = trainTypes.find((t) => t.char === charStr);
-                
+                const { minute: numStr, trainType: tChar, destination: dChar } = parseDeparture(
+                  min,
+                  trainTypes,
+                  destinations
+                );
+                const trainType = trainTypes.find((t) => t.char === tChar);
+
                 return (
                   <div 
                     key={min} 
                     className="group inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900/80 hover:bg-slate-800/80 border border-slate-700/80 rounded-xl font-medium transition-all shadow-sm"
                   >
-                    <span 
-                      className="text-xl font-bold font-mono" 
-                      style={{ color: trainType ? trainType.color : undefined }}
-                    >
-                      {numStr}
-                    </span>
+                    <div className="relative inline-flex items-start">
+                      <span 
+                        className="text-xl font-bold font-mono" 
+                        style={{ color: trainType ? trainType.color : undefined }}
+                      >
+                        {numStr}
+                      </span>
+                      {dChar && (
+                        <span className="text-[10px] leading-none font-sans font-medium text-slate-300 ml-0.5 pt-0.5 select-none">
+                          {dChar}
+                        </span>
+                      )}
+                    </div>
 
                     {trainTypes.length > 0 ? (
                       <select
-                        value={charStr}
+                        value={tChar}
                         onChange={(e) => handleUpdateMinuteTrainType(min, e.target.value)}
                         aria-label={`Train type for minute ${numStr}`}
                         className="text-xs bg-slate-950/80 border border-slate-700 rounded-lg px-1.5 py-0.5 focus:outline-none focus:border-indigo-500 cursor-pointer font-sans"
                         style={{ color: trainType ? trainType.color : undefined }}
                       >
-                        <option value="" className="text-slate-300 bg-slate-900">None</option>
+                        <option value="" className="text-slate-300 bg-slate-900">Type: None</option>
                         {trainTypes.map((t) => (
                           <option key={t.char} value={t.char} className="text-slate-200 bg-slate-900">
                             {t.char}{t.description ? ` (${t.description})` : ''}
                           </option>
                         ))}
-                        {charStr && !trainTypes.some((t) => t.char === charStr) && (
-                          <option value={charStr} className="text-slate-200 bg-slate-900">
-                            {charStr}
+                        {tChar && !trainTypes.some((t) => t.char === tChar) && (
+                          <option value={tChar} className="text-slate-200 bg-slate-900">
+                            {tChar}
                           </option>
                         )}
                       </select>
                     ) : (
-                      charStr && <span className="text-xs text-indigo-300 font-sans">{charStr}</span>
+                      tChar && <span className="text-xs text-indigo-300 font-sans">{tChar}</span>
+                    )}
+
+                    {destinations.length > 0 ? (
+                      <select
+                        value={dChar}
+                        onChange={(e) => handleUpdateMinuteDestination(min, e.target.value)}
+                        aria-label={`Destination for minute ${numStr}`}
+                        className="text-xs bg-slate-950/80 border border-slate-700 rounded-lg px-1.5 py-0.5 focus:outline-none focus:border-indigo-500 cursor-pointer font-sans text-slate-200"
+                      >
+                        <option value="" className="text-slate-300 bg-slate-900">Dest: None</option>
+                        {destinations.map((d) => (
+                          <option key={d.char} value={d.char} className="text-slate-200 bg-slate-900">
+                            {d.char}{d.description ? ` (${d.description})` : ''}
+                          </option>
+                        ))}
+                        {dChar && !destinations.some((d) => d.char === dChar) && (
+                          <option value={dChar} className="text-slate-200 bg-slate-900">
+                            {dChar}
+                          </option>
+                        )}
+                      </select>
+                    ) : (
+                      dChar && <span className="text-xs text-slate-400 font-sans">[{dChar}]</span>
                     )}
 
                     <button 
@@ -256,6 +323,53 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
             </div>
           )}
 
+          {destinations.length > 0 && (
+            <div>
+              <label className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-2">
+                Destination
+              </label>
+              <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Destination">
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={selectedDestination === ''}
+                  onClick={() => setSelectedDestination('')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
+                    selectedDestination === ''
+                      ? 'bg-indigo-600/30 border-indigo-500 text-white shadow-sm shadow-indigo-500/20'
+                      : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  }`}
+                >
+                  <span>None</span>
+                </button>
+                {destinations.map((d) => {
+                  const isSelected = selectedDestination === d.char;
+                  return (
+                    <button
+                      key={d.char}
+                      type="button"
+                      role="radio"
+                      aria-checked={isSelected}
+                      onClick={() => setSelectedDestination(d.char)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
+                        isSelected
+                          ? 'bg-indigo-600/30 border-indigo-500 text-white shadow-sm shadow-indigo-500/20'
+                          : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                      }`}
+                    >
+                      <span className="font-bold text-sm text-slate-200">{d.char}</span>
+                      {d.description && (
+                        <span className="text-slate-400 text-xs truncate max-w-[120px]">
+                          {d.description}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div>
             <label htmlFor="minute-input" className="text-xs font-medium text-slate-400 uppercase tracking-wider">
               Add Minute (00 - 59)
@@ -266,8 +380,8 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
                 id="minute-input"
                 type="text"
                 placeholder={
-                  selectedTrainType
-                    ? `e.g. 05 (${selectedTrainType})`
+                  activeLabelText
+                    ? `e.g. 05${activeLabelText}`
                     : 'e.g. 05 or 15'
                 }
                 value={inputValue}
@@ -285,10 +399,25 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
                   aria-label="Select train type"
                   className="bg-slate-950/60 border border-slate-800 rounded-xl px-2.5 py-2 text-slate-200 text-xs focus:outline-none focus:border-indigo-500 transition-all cursor-pointer font-sans max-w-[120px] truncate"
                 >
-                  <option value="" className="bg-slate-900 text-slate-300">None</option>
+                  <option value="" className="bg-slate-900 text-slate-300">Type: None</option>
                   {trainTypes.map((t) => (
                     <option key={t.char} value={t.char} className="bg-slate-900 text-slate-200">
                       {t.char}{t.description ? ` (${t.description})` : ''}
+                    </option>
+                  ))}
+                </select>
+              )}
+              {destinations.length > 0 && (
+                <select
+                  value={selectedDestination}
+                  onChange={(e) => setSelectedDestination(e.target.value)}
+                  aria-label="Select destination"
+                  className="bg-slate-950/60 border border-slate-800 rounded-xl px-2.5 py-2 text-slate-200 text-xs focus:outline-none focus:border-indigo-500 transition-all cursor-pointer font-sans max-w-[120px] truncate"
+                >
+                  <option value="" className="bg-slate-900 text-slate-300">Dest: None</option>
+                  {destinations.map((d) => (
+                    <option key={d.char} value={d.char} className="bg-slate-900 text-slate-200">
+                      {d.char}{d.description ? ` (${d.description})` : ''}
                     </option>
                   ))}
                 </select>
@@ -309,7 +438,7 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
           {/* Quick options for touch devices */}
           <div className="pt-2">
             <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest block mb-2">
-              Quick Add {selectedTrainType ? `(${selectedTrainType})` : ''}
+              Quick Add{activeLabelText}
             </span>
             <div className="grid grid-cols-6 gap-1.5">
               {['00', '05', '10', '15', '20', '30', '40', '45', '50', '55'].map((quickVal) => (
@@ -345,3 +474,4 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
     </div>
   );
 };
+

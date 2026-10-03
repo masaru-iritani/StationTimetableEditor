@@ -9,6 +9,63 @@ export interface TrainType {
   description?: string;
 }
 
+export interface Destination {
+  char: string;
+  description?: string;
+}
+
+export function parseDeparture(
+  raw: string,
+  trainTypes: TrainType[] = [],
+  destinations: Destination[] = []
+): { minute: string; trainType: string; destination: string } {
+  let decoded = raw;
+  try {
+    decoded = decodeURIComponent(raw);
+  } catch {
+    /* ignore malformed encoding */
+  }
+  const baseMatch = decoded.match(/^(\d+)(.*)$/);
+  if (!baseMatch) {
+    return { minute: '', trainType: '', destination: '' };
+  }
+  const minute = baseMatch[1].padStart(2, '0');
+  const rest = baseMatch[2];
+
+  // Check bracket notation: e.g. "特[高]" or "[高]"
+  const bracketMatch = rest.match(/^(.*)\[([^\]]+)\]$/);
+  if (bracketMatch) {
+    return {
+      minute,
+      trainType: bracketMatch[1],
+      destination: bracketMatch[2],
+    };
+  }
+
+  // If no brackets, check if rest matches a destination or train type
+  if (rest) {
+    const isDest = destinations.some((d) => d.char === rest);
+    const isType = trainTypes.some((t) => t.char === rest);
+    if (isDest && !isType) {
+      return { minute, trainType: '', destination: rest };
+    }
+    return { minute, trainType: rest, destination: '' };
+  }
+
+  return { minute, trainType: '', destination: '' };
+}
+
+export function formatDeparture(
+  minute: string | number,
+  trainType?: string,
+  destination?: string
+): string {
+  const numStr = String(minute).padStart(2, '0');
+  const tStr = trainType || '';
+  const dStr = destination ? `[${destination}]` : '';
+  return `${numStr}${tStr}${dStr}`;
+}
+
 export function getDefaultRows(colCount: number): TimetableRow[] {
   const rows: TimetableRow[] = [];
   for (let h = 6; h <= 24; h++) {
@@ -21,7 +78,12 @@ export function getDefaultRows(colCount: number): TimetableRow[] {
   return rows;
 }
 
-export function parseHash(hash: string): { headers: string[]; rows: TimetableRow[]; trainTypes: TrainType[] } {
+export function parseHash(hash: string): {
+  headers: string[];
+  rows: TimetableRow[];
+  trainTypes: TrainType[];
+  destinations: Destination[];
+} {
   const cleanHash = hash.startsWith('#') ? hash.slice(1) : hash;
   let hashParts = cleanHash.split('#');
 
@@ -33,7 +95,7 @@ export function parseHash(hash: string): { headers: string[]; rows: TimetableRow
       // Represent as ['', timetableStr]
       hashParts = ['', possibleTimetable];
     } else {
-      return { headers: [''], rows: getDefaultRows(1), trainTypes: [] };
+      return { headers: [''], rows: getDefaultRows(1), trainTypes: [], destinations: [] };
     }
   }
 
@@ -65,7 +127,7 @@ export function parseHash(hash: string): { headers: string[]; rows: TimetableRow
           .filter(Boolean)
           .map(min => {
             let decoded = min;
-          try { decoded = decodeURIComponent(min); } catch { /* ignore malformed encoding */ }
+            try { decoded = decodeURIComponent(min); } catch { /* ignore malformed encoding */ }
             const match = decoded.match(/^(\d+)(.*)$/);
             if (!match) return null;
             const num = parseInt(match[1], 10);
@@ -76,7 +138,7 @@ export function parseHash(hash: string): { headers: string[]; rows: TimetableRow
 
         // Deduplicate and sort this minute group
         const unique = Array.from(new Set(parsed));
-        unique.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+        unique.sort((a, b) => parseInt(a, 10) - parseInt(b, 10) || a.localeCompare(b));
         return unique;
       });
 
@@ -89,7 +151,7 @@ export function parseHash(hash: string): { headers: string[]; rows: TimetableRow
           const a = existing[i] ?? [];
           const b = minutes[i] ?? [];
           const merged = Array.from(new Set([...a, ...b]));
-          merged.sort((x, y) => parseInt(x, 10) - parseInt(y, 10));
+          merged.sort((x, y) => parseInt(x, 10) - parseInt(y, 10) || x.localeCompare(y));
           existing[i] = merged;
         }
         rowsMap.set(hour, existing);
@@ -148,10 +210,37 @@ export function parseHash(hash: string): { headers: string[]; rows: TimetableRow
     }
   }
 
-  return { headers, rows, trainTypes };
+  const destinations: Destination[] = [];
+  if (hashParts.length >= 4) {
+    const destsStr = hashParts[3];
+    if (destsStr) {
+      const dests = destsStr.split(',').map(d => {
+        const [charEnc, descEnc] = d.split(':');
+        try {
+          const res: Destination = {
+            char: decodeURIComponent(charEnc),
+          };
+          if (descEnc) {
+            res.description = decodeURIComponent(descEnc);
+          }
+          return res;
+        } catch {
+          return null;
+        }
+      }).filter((d): d is Destination => d !== null);
+      destinations.push(...dests);
+    }
+  }
+
+  return { headers, rows, trainTypes, destinations };
 }
 
-export function serializeHash(headers: string[], rows: TimetableRow[], trainTypes: TrainType[] = []): string {
+export function serializeHash(
+  headers: string[],
+  rows: TimetableRow[],
+  trainTypes: TrainType[] = [],
+  destinations: Destination[] = []
+): string {
   const headersPart = headers.map(h => encodeURIComponent(h)).join('|');
   const sortedRows = [...rows].sort((a, b) => a.hour - b.hour);
   const timetablePart = sortedRows.map(row => {
@@ -167,5 +256,16 @@ export function serializeHash(headers: string[], rows: TimetableRow[], trainType
     return base;
   }).join(',');
 
+  const destsPart = destinations.map(d => {
+    let base = encodeURIComponent(d.char);
+    if (d.description) {
+      base += `:${encodeURIComponent(d.description)}`;
+    }
+    return base;
+  }).join(',');
+
+  if (destsPart) {
+    return `${headersPart}#${timetablePart}#${typesPart}#${destsPart}`;
+  }
   return typesPart ? `${headersPart}#${timetablePart}#${typesPart}` : `${headersPart}#${timetablePart}`;
 }

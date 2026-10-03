@@ -1,14 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import type { FC } from 'react';
 import { Plus, Trash2, HelpCircle } from 'lucide-react';
-import type { TimetableRow } from '../utils/timetableState';
+import type { TimetableRow, TrainType, Destination } from '../utils/timetableState';
+import { parseDeparture } from '../utils/timetableState';
 import { EditableHeader } from './EditableHeader';
 import { EditMinutesDialog } from './EditMinutesDialog';
 
 interface TimetableGridProps {
   headers: string[];
   rows: TimetableRow[];
-  trainTypes: import('../utils/timetableState').TrainType[];
+  trainTypes: TrainType[];
+  destinations: Destination[];
   onChange: (headers: string[], rows: TimetableRow[]) => void;
 }
 
@@ -16,6 +18,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
   headers,
   rows,
   trainTypes,
+  destinations,
   onChange,
 }) => {
   // Dialog state
@@ -273,26 +276,42 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                           ) : (
                             <div className="flex flex-wrap justify-center gap-1.5">
                               {mins.map((min) => {
-                                const match = min.match(/^(\d+)(.*)$/);
-                                const numStr = match ? match[1] : min;
-                                const charStr = match ? match[2] : '';
-                                const trainType = trainTypes.find(t => t.char === charStr);
+                                const { minute: numStr, trainType: tChar, destination: dChar } = parseDeparture(
+                                  min,
+                                  trainTypes,
+                                  destinations
+                                );
+                                const trainType = trainTypes.find((t) => t.char === tChar);
+                                const destination = destinations.find((d) => d.char === dChar);
                                 
                                 return (
                                   <div
                                     key={min}
                                     className="inline-flex items-baseline gap-1 px-2.5 py-1 bg-slate-800 group-hover:bg-slate-700 group-focus-within:bg-slate-700 border border-slate-700/80 group-hover:border-indigo-500/30 group-focus-within:border-indigo-500/30 text-slate-300 group-hover:text-indigo-200 group-focus-within:text-indigo-200 rounded-md font-mono font-medium transition-all"
                                   >
-                                    {trainType ? (
-                                      <>
-                                        <span className="text-2xl" style={{ color: trainType.color }}>{numStr}</span>
-                                        {charStr && <span className="text-xs text-slate-300 group-hover:text-indigo-200 group-focus-within:text-indigo-200">{charStr}</span>}
-                                      </>
-                                    ) : (
-                                      <>
-                                        <span className="text-2xl">{numStr}</span>
-                                        {charStr && <span className="text-xs">{charStr}</span>}
-                                      </>
+                                    <div className="relative inline-flex items-start">
+                                      <span
+                                        className="text-2xl font-bold font-mono"
+                                        style={{ color: trainType ? trainType.color : undefined }}
+                                      >
+                                        {numStr}
+                                      </span>
+                                      {dChar && (
+                                        <span
+                                          className="text-[10px] leading-none font-sans font-medium text-slate-300 ml-0.5 pt-0.5 select-none"
+                                          title={destination?.description || dChar}
+                                        >
+                                          {dChar}
+                                        </span>
+                                      )}
+                                    </div>
+                                    {tChar && (
+                                      <span
+                                        className="text-xs text-slate-300 group-hover:text-indigo-200 group-focus-within:text-indigo-200"
+                                        title={trainType?.description || tChar}
+                                      >
+                                        {tChar}
+                                      </span>
                                     )}
                                   </div>
                                 );
@@ -338,23 +357,44 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
         </table>
       </div>
 
-      {/* Train Types Footnote */}
-      {trainTypes.length > 0 && (
-        <div className="mt-4 px-2">
-          <div className="flex flex-wrap gap-4 items-center">
-            {trainTypes.map(t => (
-              <div key={t.char} className="flex items-center gap-1.5 text-sm">
-                <span className="font-bold text-base" style={{ color: t.color }}>
-                  {t.char}
-                </span>
-                {t.description && (
-                  <span className="text-slate-400">
-                    ... {t.description}
+      {/* Footnotes */}
+      {(trainTypes.length > 0 || destinations.length > 0) && (
+        <div className="mt-4 px-2 space-y-2">
+          {/* Train Types Footnote */}
+          {trainTypes.length > 0 && (
+            <div className="flex flex-wrap gap-4 items-center">
+              {trainTypes.map((t) => (
+                <div key={t.char} className="flex items-center gap-1.5 text-sm">
+                  <span className="font-bold text-base" style={{ color: t.color }}>
+                    {t.char}
                   </span>
-                )}
-              </div>
-            ))}
-          </div>
+                  {t.description && (
+                    <span className="text-slate-400">
+                      ... {t.description}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Destinations Footnote */}
+          {destinations.length > 0 && (
+            <div className="flex flex-wrap gap-4 items-center">
+              {destinations.map((d) => (
+                <div key={d.char} className="flex items-center gap-1.5 text-sm">
+                  <span className="font-bold text-base text-slate-200">
+                    {d.char}
+                  </span>
+                  {d.description && (
+                    <span className="text-slate-400">
+                      ... {d.description}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -372,6 +412,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
         routeName={activeRouteName}
         minutes={activeMinutes}
         trainTypes={trainTypes}
+        destinations={destinations}
         onSave={handleSaveCellMinutes}
       />
     </div>

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Share2, RotateCcw, Trash2, Check, Settings } from 'lucide-react';
+import { Share2, RotateCcw, Trash2, Check, Settings, MapPin } from 'lucide-react';
 import { parseHash, serializeHash, getDefaultRows } from './utils/timetableState';
-import type { TimetableRow, TrainType } from './utils/timetableState';
+import type { TimetableRow, TrainType, Destination } from './utils/timetableState';
 import { TimetableGrid } from './components/TimetableGrid';
 import { TrainTypeEditor } from './components/TrainTypeEditor';
+import { DestinationEditor } from './components/DestinationEditor';
 
 const LOCAL_STORAGE_KEY = 'station_timetable_editor_state_v1';
 
@@ -11,9 +12,11 @@ export default function App() {
   const [headers, setHeaders] = useState<string[]>(['']);
   const [rows, setRows] = useState<TimetableRow[]>([]);
   const [trainTypes, setTrainTypes] = useState<TrainType[]>([]);
+  const [destinations, setDestinations] = useState<Destination[]>([]);
   const [copied, setCopied] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showTrainTypes, setShowTrainTypes] = useState(false);
+  const [showDestinations, setShowDestinations] = useState(false);
 
   // Initialize state from URL hash or localStorage on mount
   useEffect(() => {
@@ -24,6 +27,7 @@ export default function App() {
         setHeaders(parsed.headers);
         setRows(parsed.rows);
         setTrainTypes(parsed.trainTypes);
+        setDestinations(parsed.destinations);
       } else {
         const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (saved) {
@@ -34,6 +38,7 @@ export default function App() {
               headers: string[];
               rows: Array<{ hour: number; minutes: string[][] }>;
               trainTypes?: Array<{ char: string; color: string; description?: string }>;
+              destinations?: Array<{ char: string; description?: string }>;
             };
 
             const isSavedState = (v: unknown): v is SavedState => {
@@ -59,6 +64,14 @@ export default function App() {
                   if (typeof tt.char !== 'string' || typeof tt.color !== 'string') return false;
                 }
               }
+              if (obj.destinations !== undefined) {
+                if (!Array.isArray(obj.destinations)) return false;
+                for (const d of obj.destinations) {
+                  if (typeof d !== 'object' || d === null) return false;
+                  const dd = d as Record<string, unknown>;
+                  if (typeof dd.char !== 'string') return false;
+                }
+              }
               return true;
             };
 
@@ -71,12 +84,16 @@ export default function App() {
               const safeTrainTypes = Array.isArray(parsed.trainTypes)
                 ? parsed.trainTypes.map((t) => ({ char: String(t.char), color: String(t.color), description: t.description ? String(t.description) : undefined }))
                 : [];
+              const safeDestinations = Array.isArray(parsed.destinations)
+                ? parsed.destinations.map((d) => ({ char: String(d.char), description: d.description ? String(d.description) : undefined }))
+                : [];
 
               setHeaders(safeHeaders);
               setRows(safeRows);
               setTrainTypes(safeTrainTypes);
+              setDestinations(safeDestinations);
               // Sync url hash on initial load from local storage
-              window.location.hash = serializeHash(safeHeaders, safeRows, safeTrainTypes);
+              window.location.hash = serializeHash(safeHeaders, safeRows, safeTrainTypes, safeDestinations);
               return;
             } else {
               console.warn('Saved state is malformed; ignoring.');
@@ -91,7 +108,8 @@ export default function App() {
         setHeaders(defaultHeaders);
         setRows(defaultRows);
         setTrainTypes([]);
-        window.location.hash = serializeHash(defaultHeaders, defaultRows, []);
+        setDestinations([]);
+        window.location.hash = serializeHash(defaultHeaders, defaultRows, [], []);
       }
     };
 
@@ -105,34 +123,46 @@ export default function App() {
       if (hash && hash.length > 1) {
         const parsed = parseHash(hash);
         // Compare with current state to prevent endless loops
-        const serializedCurrent = serializeHash(headers, rows, trainTypes);
-        const serializedNew = serializeHash(parsed.headers, parsed.rows, parsed.trainTypes);
+        const serializedCurrent = serializeHash(headers, rows, trainTypes, destinations);
+        const serializedNew = serializeHash(parsed.headers, parsed.rows, parsed.trainTypes, parsed.destinations);
         if (serializedCurrent !== serializedNew) {
           setHeaders(parsed.headers);
           setRows(parsed.rows);
           setTrainTypes(parsed.trainTypes);
+          setDestinations(parsed.destinations);
         }
       }
     };
 
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, [headers, rows, trainTypes]);
+  }, [headers, rows, trainTypes, destinations]);
 
-  // Update URL hash and localStorage whenever headers, rows or trainTypes change
-  const handleStateChange = (newHeaders: string[], newRows: TimetableRow[], newTrainTypes: TrainType[] = trainTypes) => {
+  // Update URL hash and localStorage whenever headers, rows, trainTypes, or destinations change
+  const handleStateChange = (
+    newHeaders: string[],
+    newRows: TimetableRow[],
+    newTrainTypes: TrainType[] = trainTypes,
+    newDestinations: Destination[] = destinations
+  ) => {
     setHeaders(newHeaders);
     setRows(newRows);
     setTrainTypes(newTrainTypes);
+    setDestinations(newDestinations);
     
     // Save to LocalStorage
     localStorage.setItem(
       LOCAL_STORAGE_KEY,
-      JSON.stringify({ headers: newHeaders, rows: newRows, trainTypes: newTrainTypes })
+      JSON.stringify({
+        headers: newHeaders,
+        rows: newRows,
+        trainTypes: newTrainTypes,
+        destinations: newDestinations,
+      })
     );
 
     // Save to URL hash
-    const newHash = serializeHash(newHeaders, newRows, newTrainTypes);
+    const newHash = serializeHash(newHeaders, newRows, newTrainTypes, newDestinations);
     // Only update hash if it's different to prevent layout jitters
     if (window.location.hash.slice(1) !== newHash) {
       window.location.hash = newHash;
@@ -152,7 +182,7 @@ export default function App() {
   const handleClearAll = () => {
     const emptyHeaders = ['Route 1'];
     const emptyRows = getDefaultRows(1);
-    handleStateChange(emptyHeaders, emptyRows, trainTypes);
+    handleStateChange(emptyHeaders, emptyRows, trainTypes, destinations);
     setShowClearConfirm(false);
   };
 
@@ -169,7 +199,7 @@ export default function App() {
       else if (row.hour === 17) updated.minutes = [['01']];
       return updated;
     });
-    handleStateChange(tsubojiriHeaders, tsubojiriRows, trainTypes);
+    handleStateChange(tsubojiriHeaders, tsubojiriRows, trainTypes, destinations);
   };
 
   return (
@@ -247,6 +277,15 @@ export default function App() {
               <Settings size={14} />
               <span className="hidden sm:inline">Train Types</span>
             </button>
+
+            <button
+              onClick={() => setShowDestinations(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold rounded-xl transition-all border border-slate-800 cursor-pointer"
+              title="Manage Destinations"
+            >
+              <MapPin size={14} />
+              <span className="hidden sm:inline">Destinations</span>
+            </button>
           </div>
         </div>
       </header>
@@ -292,7 +331,8 @@ export default function App() {
             headers={headers}
             rows={rows}
             trainTypes={trainTypes}
-            onChange={(newHeaders, newRows) => handleStateChange(newHeaders, newRows, trainTypes)}
+            destinations={destinations}
+            onChange={(newHeaders, newRows) => handleStateChange(newHeaders, newRows, trainTypes, destinations)}
           />
         </section>
       </main>
@@ -301,7 +341,14 @@ export default function App() {
         isOpen={showTrainTypes}
         onClose={() => setShowTrainTypes(false)}
         trainTypes={trainTypes}
-        onSave={(newTrainTypes) => handleStateChange(headers, rows, newTrainTypes)}
+        onSave={(newTrainTypes) => handleStateChange(headers, rows, newTrainTypes, destinations)}
+      />
+
+      <DestinationEditor
+        isOpen={showDestinations}
+        onClose={() => setShowDestinations(false)}
+        destinations={destinations}
+        onSave={(newDestinations) => handleStateChange(headers, rows, trainTypes, newDestinations)}
       />
 
       {/* Footer */}
