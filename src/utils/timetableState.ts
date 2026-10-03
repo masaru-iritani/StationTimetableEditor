@@ -95,7 +95,7 @@ export function parseHash(hash: string): {
       // Represent as ['', timetableStr]
       hashParts = ['', possibleTimetable];
     } else {
-      return { headers: [''], rows: getDefaultRows(1), trainTypes: [], destinations: [] };
+      return { headers: ['Route 1'], rows: getDefaultRows(1), trainTypes: [], destinations: [] };
     }
   }
 
