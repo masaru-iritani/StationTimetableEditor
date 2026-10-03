@@ -392,36 +392,6 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
                 onKeyDown={handleKeyDown}
                 className="flex-1 min-w-0 bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-mono"
               />
-              {trainTypes.length > 0 && (
-                <select
-                  value={selectedTrainType}
-                  onChange={(e) => setSelectedTrainType(e.target.value)}
-                  aria-label="Select train type"
-                  className="bg-slate-950/60 border border-slate-800 rounded-xl px-2.5 py-2 text-slate-200 text-xs focus:outline-none focus:border-indigo-500 transition-all cursor-pointer font-sans max-w-[120px] truncate"
-                >
-                  <option value="" className="bg-slate-900 text-slate-300">Type: None</option>
-                  {trainTypes.map((t) => (
-                    <option key={t.char} value={t.char} className="bg-slate-900 text-slate-200">
-                      {t.char}{t.description ? ` (${t.description})` : ''}
-                    </option>
-                  ))}
-                </select>
-              )}
-              {destinations.length > 0 && (
-                <select
-                  value={selectedDestination}
-                  onChange={(e) => setSelectedDestination(e.target.value)}
-                  aria-label="Select destination"
-                  className="bg-slate-950/60 border border-slate-800 rounded-xl px-2.5 py-2 text-slate-200 text-xs focus:outline-none focus:border-indigo-500 transition-all cursor-pointer font-sans max-w-[120px] truncate"
-                >
-                  <option value="" className="bg-slate-900 text-slate-300">Dest: None</option>
-                  {destinations.map((d) => (
-                    <option key={d.char} value={d.char} className="bg-slate-900 text-slate-200">
-                      {d.char}{d.description ? ` (${d.description})` : ''}
-                    </option>
-                  ))}
-                </select>
-              )}
               <button
                 onClick={() => handleAddMinute(inputValue)}
                 aria-label="Add minute"
