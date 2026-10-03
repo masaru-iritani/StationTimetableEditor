@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import type { FC, KeyboardEvent } from 'react';
 import { X, Plus } from 'lucide-react';
+import type { TrainType } from '../utils/timetableState';
 
 interface EditMinutesDialogProps {
   isOpen: boolean;
@@ -8,7 +9,7 @@ interface EditMinutesDialogProps {
   hour: number;
   routeName: string;
   minutes: string[];
-  trainTypes: import('../utils/timetableState').TrainType[];
+  trainTypes: TrainType[];
   onSave: (newMinutes: string[]) => void;
 }
 
@@ -23,6 +24,7 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
 }) => {
   const [currentMinutes, setCurrentMinutes] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
+  const [selectedTrainType, setSelectedTrainType] = useState<string>('');
   const [error, setError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -31,6 +33,7 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
     const id = setTimeout(() => {
       setCurrentMinutes([...minutes].sort((a, b) => parseInt(a) - parseInt(b)));
       setInputValue('');
+      setSelectedTrainType('');
       setError('');
       // Focus input after modal transition
       inputRef.current?.focus();
@@ -46,7 +49,7 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
 
     const match = trimmed.match(/^(\d+)(.*)$/);
     if (!match) {
-      setError('Must start with a number (e.g. 05 or 15特).');
+      setError('Must start with a minute number (e.g. 05 or 15).');
       return;
     }
 
@@ -56,7 +59,8 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
       return;
     }
 
-    const formatted = parsed.toString().padStart(2, '0') + match[2];
+    const charSuffix = match[2] ? match[2] : selectedTrainType;
+    const formatted = parsed.toString().padStart(2, '0') + charSuffix;
     if (currentMinutes.includes(formatted)) {
       setError('This minute is already added.');
       return;
@@ -67,6 +71,23 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
     setInputValue('');
     setError('');
     inputRef.current?.focus();
+  };
+
+  const handleUpdateMinuteTrainType = (oldMin: string, newChar: string) => {
+    const match = oldMin.match(/^(\d+)(.*)$/);
+    if (!match) return;
+    const numStr = match[1];
+    const newMin = numStr + newChar;
+    if (newMin === oldMin) return;
+    if (currentMinutes.includes(newMin)) {
+      setError(`Minute ${newMin} is already scheduled.`);
+      return;
+    }
+    const updated = currentMinutes
+      .map((m) => (m === oldMin ? newMin : m))
+      .sort((a, b) => parseInt(a) - parseInt(b));
+    setCurrentMinutes(updated);
+    setError('');
   };
 
   const handleRemoveMinute = (minuteToRemove: string) => {
@@ -109,7 +130,7 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
           <button 
             onClick={onClose}
             aria-label="Close"
-            className="text-slate-400 hover:text-slate-200 transition-colors p-1.5 rounded-lg hover:bg-slate-800/50"
+            className="text-slate-400 hover:text-slate-200 transition-colors p-1.5 rounded-lg hover:bg-slate-800/50 cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -125,35 +146,53 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
               No departures scheduled for this hour
             </div>
           ) : (
-            <div className="mt-2 flex flex-wrap gap-2 max-h-32 overflow-y-auto p-1">
+            <div className="mt-2 flex flex-wrap gap-2 max-h-40 overflow-y-auto p-1">
               {currentMinutes.map((min) => {
                 const match = min.match(/^(\d+)(.*)$/);
                 const numStr = match ? match[1] : min;
                 const charStr = match ? match[2] : '';
-                const trainType = trainTypes.find(t => t.char === charStr);
+                const trainType = trainTypes.find((t) => t.char === charStr);
                 
                 return (
                   <div 
                     key={min} 
-                    className="group inline-flex items-baseline gap-1.5 px-3 py-1 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full font-medium transition-all"
+                    className="group inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900/80 hover:bg-slate-800/80 border border-slate-700/80 rounded-xl font-medium transition-all shadow-sm"
                   >
-                    <div className="flex items-baseline gap-1">
-                      {trainType ? (
-                        <>
-                          <span className="text-xl" style={{ color: trainType.color }}>{numStr}</span>
-                          {charStr && <span className="text-xs text-indigo-300">{charStr}</span>}
-                        </>
-                      ) : (
-                        <>
-                          <span className="text-xl">{numStr}</span>
-                          {charStr && <span className="text-xs">{charStr}</span>}
-                        </>
-                      )}
-                    </div>
+                    <span 
+                      className="text-xl font-bold font-mono" 
+                      style={{ color: trainType ? trainType.color : undefined }}
+                    >
+                      {numStr}
+                    </span>
+
+                    {trainTypes.length > 0 ? (
+                      <select
+                        value={charStr}
+                        onChange={(e) => handleUpdateMinuteTrainType(min, e.target.value)}
+                        aria-label={`Train type for minute ${numStr}`}
+                        className="text-xs bg-slate-950/80 border border-slate-700 rounded-lg px-1.5 py-0.5 focus:outline-none focus:border-indigo-500 cursor-pointer font-sans"
+                        style={{ color: trainType ? trainType.color : undefined }}
+                      >
+                        <option value="" className="text-slate-300 bg-slate-900">None</option>
+                        {trainTypes.map((t) => (
+                          <option key={t.char} value={t.char} className="text-slate-200 bg-slate-900">
+                            {t.char}{t.description ? ` (${t.description})` : ''}
+                          </option>
+                        ))}
+                        {charStr && !trainTypes.some((t) => t.char === charStr) && (
+                          <option value={charStr} className="text-slate-200 bg-slate-900">
+                            {charStr}
+                          </option>
+                        )}
+                      </select>
+                    ) : (
+                      charStr && <span className="text-xs text-indigo-300 font-sans">{charStr}</span>
+                    )}
+
                     <button 
                       onClick={() => handleRemoveMinute(min)}
                       aria-label={`Remove ${min}`}
-                      className="text-indigo-400 hover:text-red-400 transition-colors ml-1"
+                      className="text-slate-400 hover:text-red-400 transition-colors p-0.5 rounded-lg hover:bg-slate-700/50 ml-0.5 cursor-pointer"
                     >
                       <X size={14} />
                     </button>
@@ -166,6 +205,57 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
 
         {/* Input form */}
         <div className="space-y-4">
+          {trainTypes.length > 0 && (
+            <div>
+              <label className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-2">
+                Train Type
+              </label>
+              <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Train Type">
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={selectedTrainType === ''}
+                  onClick={() => setSelectedTrainType('')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
+                    selectedTrainType === ''
+                      ? 'bg-indigo-600/30 border-indigo-500 text-white shadow-sm shadow-indigo-500/20'
+                      : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  }`}
+                >
+                  <span>None</span>
+                </button>
+                {trainTypes.map((t) => {
+                  const isSelected = selectedTrainType === t.char;
+                  return (
+                    <button
+                      key={t.char}
+                      type="button"
+                      role="radio"
+                      aria-checked={isSelected}
+                      onClick={() => setSelectedTrainType(t.char)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
+                        isSelected
+                          ? 'bg-indigo-600/30 border-indigo-500 text-white shadow-sm shadow-indigo-500/20'
+                          : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                      }`}
+                    >
+                      <span
+                        className="w-2.5 h-2.5 rounded-full inline-block shrink-0"
+                        style={{ backgroundColor: t.color }}
+                      />
+                      <span className="font-bold text-sm" style={{ color: t.color }}>{t.char}</span>
+                      {t.description && (
+                        <span className="text-slate-400 text-xs truncate max-w-[120px]">
+                          {t.description}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div>
             <label htmlFor="minute-input" className="text-xs font-medium text-slate-400 uppercase tracking-wider">
               Add Minute (00 - 59)
@@ -175,19 +265,38 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
                 ref={inputRef}
                 id="minute-input"
                 type="text"
-                placeholder="e.g. 05 or 15特"
+                placeholder={
+                  selectedTrainType
+                    ? `e.g. 05 (${selectedTrainType})`
+                    : 'e.g. 05 or 15'
+                }
                 value={inputValue}
                 onChange={(e) => {
                   setInputValue(e.target.value);
                   setError('');
                 }}
                 onKeyDown={handleKeyDown}
-                className="flex-1 bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-mono"
+                className="flex-1 min-w-0 bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-mono"
               />
+              {trainTypes.length > 0 && (
+                <select
+                  value={selectedTrainType}
+                  onChange={(e) => setSelectedTrainType(e.target.value)}
+                  aria-label="Select train type"
+                  className="bg-slate-950/60 border border-slate-800 rounded-xl px-2.5 py-2 text-slate-200 text-xs focus:outline-none focus:border-indigo-500 transition-all cursor-pointer font-sans max-w-[120px] truncate"
+                >
+                  <option value="" className="bg-slate-900 text-slate-300">None</option>
+                  {trainTypes.map((t) => (
+                    <option key={t.char} value={t.char} className="bg-slate-900 text-slate-200">
+                      {t.char}{t.description ? ` (${t.description})` : ''}
+                    </option>
+                  ))}
+                </select>
+              )}
               <button
                 onClick={() => handleAddMinute(inputValue)}
                 aria-label="Add minute"
-                className="bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-xl px-4 py-2 font-medium flex items-center justify-center transition-colors"
+                className="bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-xl px-4 py-2 font-medium flex items-center justify-center transition-colors cursor-pointer shrink-0"
               >
                 <Plus size={18} />
               </button>
@@ -200,14 +309,15 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
           {/* Quick options for touch devices */}
           <div className="pt-2">
             <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest block mb-2">
-              Quick Add
+              Quick Add {selectedTrainType ? `(${selectedTrainType})` : ''}
             </span>
             <div className="grid grid-cols-6 gap-1.5">
               {['00', '05', '10', '15', '20', '30', '40', '45', '50', '55'].map((quickVal) => (
                 <button
                   key={quickVal}
+                  type="button"
                   onClick={() => handleAddMinute(quickVal)}
-                  className="py-1 bg-slate-950/40 hover:bg-slate-800/80 active:bg-indigo-600 active:text-white text-xs font-medium border border-slate-800/60 rounded-lg text-slate-300 font-mono transition-all"
+                  className="py-1 bg-slate-950/40 hover:bg-slate-800/80 active:bg-indigo-600 active:text-white text-xs font-medium border border-slate-800/60 rounded-lg text-slate-300 font-mono transition-all cursor-pointer"
                 >
                   +{quickVal}
                 </button>
@@ -220,13 +330,13 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
         <div className="mt-8 flex gap-3 border-t border-slate-800/80 pt-4 justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 rounded-xl transition-all"
+            className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 rounded-xl transition-all cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-5 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/20 transition-all"
+            className="px-5 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/20 transition-all cursor-pointer"
           >
             Save Changes
           </button>
