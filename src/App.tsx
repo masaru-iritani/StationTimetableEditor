@@ -9,8 +9,8 @@ import { DestinationEditor } from './components/DestinationEditor';
 const LOCAL_STORAGE_KEY = 'station_timetable_editor_state_v1';
 
 export default function App() {
-  const [headers, setHeaders] = useState<string[]>(['']);
-  const [rows, setRows] = useState<TimetableRow[]>([]);
+  const [headers, setHeaders] = useState<string[]>(['Route 1']);
+  const [rows, setRows] = useState<TimetableRow[]>(() => getDefaultRows(1));
   const [trainTypes, setTrainTypes] = useState<TrainType[]>([]);
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [copied, setCopied] = useState(false);
@@ -102,13 +102,14 @@ export default function App() {
             console.error('Failed to parse saved state:', e);
           }
         }
-        // Fallback to demo timetable
-        const demo = parseHash(DEMO_HASH);
-        setHeaders(demo.headers);
-        setRows(demo.rows);
-        setTrainTypes(demo.trainTypes);
-        setDestinations(demo.destinations);
-        window.location.hash = serializeHash(demo.headers, demo.rows, demo.trainTypes, demo.destinations);
+        // Fallback to empty timetable with default route "Route 1"
+        const defaultHeaders = ['Route 1'];
+        const defaultRows = getDefaultRows(1);
+        setHeaders(defaultHeaders);
+        setRows(defaultRows);
+        setTrainTypes([]);
+        setDestinations([]);
+        window.location.hash = serializeHash(defaultHeaders, defaultRows, [], []);
       }
     };
 
