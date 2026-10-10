@@ -209,22 +209,13 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                   key={headerIds[idx] || `route-${idx}`} 
                   className="min-w-[160px] px-4 py-2 border-r border-slate-800 text-center relative group print:min-w-0 print:border-slate-400 print:py-2"
                 >
-                  <div className="flex flex-col items-center justify-center">
+                  <div className="flex items-center justify-center">
                     <EditableHeader
                       value={headerText}
                       onSave={(newName) => handleUpdateHeader(idx, newName)}
                       placeholder={`Route ${idx + 1}`}
+                      onDelete={headers.length > 1 ? () => handleRemoveColumn(idx) : undefined}
                     />
-                    {headers.length > 1 && (
-                      <button
-                        onClick={() => handleRemoveColumn(idx)}
-                        aria-label="Delete route column"
-                        className="text-slate-500 hover:text-red-400 text-[10px] font-medium absolute top-2 right-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity p-1 rounded hover:bg-slate-800/40 focus:outline-none print:hidden"
-                        title="Delete route column"
-                      >
-                        Remove
-                      </button>
-                    )}
                   </div>
                 </th>
               ))}

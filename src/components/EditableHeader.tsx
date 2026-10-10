@@ -1,17 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import type { FC, KeyboardEvent } from 'react';
-import { Edit2, Check } from 'lucide-react';
+import { Edit2, Check, Trash2 } from 'lucide-react';
 
 interface EditableHeaderProps {
   value: string;
   onSave: (newValue: string) => void;
   placeholder?: string;
+  onDelete?: () => void;
 }
 
 export const EditableHeader: FC<EditableHeaderProps> = ({
   value,
   onSave,
   placeholder = 'Route Name',
+  onDelete,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(value);
@@ -79,18 +81,32 @@ export const EditableHeader: FC<EditableHeaderProps> = ({
   }
 
   return (
-    <button
-      type="button"
-      onClick={() => setIsEditing(true)}
-      className="group relative flex items-center justify-center gap-1.5 py-2 px-4 rounded-xl hover:bg-slate-800/30 transition-all border border-transparent hover:border-slate-800/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 print:p-0 print:border-none print:shadow-none print:cursor-default print:hover:bg-transparent"
-    >
-      <span className={`text-sm font-semibold tracking-wide ${value ? 'text-slate-200' : 'text-slate-500 italic'} print:text-slate-900 print:text-base print:font-bold`}>
-        {value || placeholder}
-      </span>
-      <Edit2 
-        size={13} 
-        className="text-slate-500 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200 shrink-0 print:hidden" 
-      />
-    </button>
+    <div className="flex items-center justify-center gap-1">
+      <button
+        type="button"
+        onClick={() => setIsEditing(true)}
+        className="group/name relative flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl hover:bg-slate-800/30 transition-all border border-transparent hover:border-slate-800/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 print:p-0 print:border-none print:shadow-none print:cursor-default print:hover:bg-transparent"
+        title="Edit route name"
+      >
+        <span className={`text-sm font-semibold tracking-wide ${value ? 'text-slate-200' : 'text-slate-500 italic'} print:text-slate-900 print:text-base print:font-bold`}>
+          {value || placeholder}
+        </span>
+        <Edit2 
+          size={13} 
+          className="text-slate-500 group-hover/name:text-indigo-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200 shrink-0 print:hidden" 
+        />
+      </button>
+      {onDelete && (
+        <button
+          type="button"
+          onClick={onDelete}
+          aria-label="Delete route column"
+          title="Delete route column"
+          className="text-slate-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-slate-800/40 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus:opacity-100 transition-all duration-200 shrink-0 cursor-pointer print:hidden"
+        >
+          <Trash2 size={13} />
+        </button>
+      )}
+    </div>
   );
 };
