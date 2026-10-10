@@ -203,10 +203,10 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100">
+    <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100 print:min-h-0 print:bg-white print:text-slate-900">
       
       {/* Top Banner/Header */}
-      <header className="border-b border-slate-900 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
+      <header className="border-b border-slate-900 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40 print:hidden">
         <div className="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           
           {/* Logo & Title */}
@@ -291,10 +291,10 @@ export default function App() {
       </header>
 
       {/* Main Grid Content */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8 space-y-6">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8 space-y-6 print:max-w-none print:w-full print:p-0 print:m-0 print:space-y-0">
         
         {/* Intro Info Banner */}
-        <section className="glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <section className="glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-4 print:hidden">
           <div className="space-y-1.5 z-10 max-w-2xl">
             <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-indigo-400 animate-pulse"></span>
@@ -352,7 +352,7 @@ export default function App() {
       />
 
       {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950 py-8 mt-12 text-slate-500 text-xs">
+      <footer className="border-t border-slate-900 bg-slate-950 py-8 mt-12 text-slate-500 text-xs print:hidden">
         <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-center sm:text-left">
             <p>Station Timetable Editor — Fully Offline-Capable PWA Application</p>

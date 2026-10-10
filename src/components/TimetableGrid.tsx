@@ -195,19 +195,19 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
   return (
     <div className="w-full">
       {/* Scrollable table container */}
-      <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/30 backdrop-blur-md shadow-xl">
-        <table className="w-full border-collapse text-left">
+      <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/30 backdrop-blur-md shadow-xl print:overflow-visible print:rounded-none print:border-none print:bg-transparent print:shadow-none print:backdrop-blur-none">
+        <table className="w-full border-collapse text-left print:border print:border-slate-400">
           <thead>
-            <tr className="border-b border-slate-800 bg-slate-900/50">
+            <tr className="border-b border-slate-800 bg-slate-900/50 print:bg-slate-100 print:border-b-2 print:border-slate-400">
               {/* Hour column */}
-              <th className="w-20 px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-400 border-r border-slate-800">
+              <th className="w-20 px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-400 border-r border-slate-800 print:text-slate-900 print:font-bold print:border-slate-400 print:w-16 print:py-2">
                 Hour
               </th>
               {/* Route columns */}
               {headers.map((headerText, idx) => (
                 <th 
-                                key={headerIds[idx] || `route-${idx}`} 
-                  className="min-w-[160px] px-4 py-2 border-r border-slate-800 text-center relative group"
+                  key={headerIds[idx] || `route-${idx}`} 
+                  className="min-w-[160px] px-4 py-2 border-r border-slate-800 text-center relative group print:min-w-0 print:border-slate-400 print:py-2"
                 >
                   <div className="flex flex-col items-center justify-center">
                     <EditableHeader
@@ -219,7 +219,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                       <button
                         onClick={() => handleRemoveColumn(idx)}
                         aria-label="Delete route column"
-                        className="text-slate-500 hover:text-red-400 text-[10px] font-medium absolute top-2 right-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity p-1 rounded hover:bg-slate-800/40 focus:outline-none"
+                        className="text-slate-500 hover:text-red-400 text-[10px] font-medium absolute top-2 right-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity p-1 rounded hover:bg-slate-800/40 focus:outline-none print:hidden"
                         title="Delete route column"
                       >
                         Remove
@@ -229,22 +229,22 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                 </th>
               ))}
               {/* Add column header */}
-              <th className="w-16 px-4 py-2 text-center align-middle">
+              <th className="w-16 px-4 py-2 text-center align-middle print:hidden">
                 <button
                   onClick={handleAddColumn}
-                                  aria-label="Add route column"
-                                  className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600/20 hover:bg-indigo-600/35 text-indigo-400 hover:text-indigo-300 border border-indigo-500/20 transition-all cursor-pointer"
-                                  title="Add route column"
-                                >
-                                  <Plus size={20} />
-                                </button>
+                  aria-label="Add route column"
+                  className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600/20 hover:bg-indigo-600/35 text-indigo-400 hover:text-indigo-300 border border-indigo-500/20 transition-all cursor-pointer"
+                  title="Add route column"
+                >
+                  <Plus size={20} />
+                </button>
               </th>
             </tr>
           </thead>
           <tbody>
             {/* Top row insert button (if rows exist) */}
             {rows.length > 0 && (
-              <tr>
+              <tr className="print:hidden">
                 <td colSpan={headers.length + 2} className="p-0">
                   <button
                     onClick={handleAddRowTop}
@@ -258,7 +258,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
 
             {/* Empty state rows */}
             {rows.length === 0 ? (
-              <tr>
+              <tr className="print:hidden">
                 <td colSpan={headers.length + 2} className="py-16 text-center text-slate-500">
                   <p className="text-sm italic">No hours added yet</p>
                   <button
@@ -280,10 +280,10 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                 return (
                   <tr 
                     key={`${row.hour}-${rowIndex}`} 
-                    className="border-b border-slate-800/60 hover:bg-slate-900/10 transition-colors"
+                    className="border-b border-slate-800/60 hover:bg-slate-900/10 transition-colors print:border-b print:border-slate-300 print:hover:bg-transparent"
                   >
                     {/* Hour cell */}
-                    <td className="px-4 py-3 text-center text-sm font-semibold text-slate-300 bg-slate-900/20 border-r border-slate-800 font-mono">
+                    <td className="px-4 py-3 text-center text-sm font-semibold text-slate-300 bg-slate-900/20 border-r border-slate-800 font-mono print:text-slate-900 print:font-bold print:bg-slate-50 print:border-r print:border-slate-400 print:py-2 print:px-2">
                       {row.hour}
                     </td>
 
@@ -291,16 +291,16 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                     {row.minutes.map((mins, colIdx) => (
                       <td
                         key={colIdx}
-                        className="px-4 py-3 border-r border-slate-800 group min-h-[48px] cursor-pointer"
+                        className="px-4 py-3 border-r border-slate-800 group min-h-[48px] cursor-pointer print:cursor-default print:border-r print:border-slate-300 print:py-2 print:px-3"
                         onClick={() => handleEmptyCellClick(row.hour, colIdx)}
                         title="Click to add a departure"
                       >
                         {mins.length === 0 ? (
-                          <div className="text-slate-700 group-hover:text-slate-500 text-xs italic text-center font-mono py-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="text-slate-700 group-hover:text-slate-500 text-xs italic text-center font-mono py-1.5 opacity-0 group-hover:opacity-100 transition-opacity print:hidden">
                             Click to add
                           </div>
                         ) : (
-                          <div className="flex flex-wrap justify-center gap-1.5">
+                          <div className="flex flex-wrap justify-center gap-1.5 print:gap-x-2 print:gap-y-1">
                             {mins.map((min) => {
                               const { minute: numStr, trainType: tChar, destination: dChar } = parseDeparture(
                                 min,
@@ -319,10 +319,10 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                                     handleDepartureClick(row.hour, colIdx, min);
                                   }}
                                   title="Click to edit this departure"
-                                  className="inline-flex items-center gap-0.5 px-2.5 py-1 bg-slate-800 hover:bg-indigo-700/40 border border-slate-700/80 hover:border-indigo-500/60 text-slate-300 hover:text-indigo-200 rounded-md font-mono font-medium transition-all cursor-pointer"
+                                  className="inline-flex items-center gap-0.5 px-2.5 py-1 bg-slate-800 hover:bg-indigo-700/40 border border-slate-700/80 hover:border-indigo-500/60 text-slate-300 hover:text-indigo-200 rounded-md font-mono font-medium transition-all cursor-pointer print:bg-transparent print:border-none print:p-0 print:cursor-default print:shadow-none"
                                 >
                                   <span
-                                    className="text-2xl font-bold font-mono"
+                                    className="text-2xl font-bold font-mono print:text-xl print:text-slate-900"
                                     style={{ color: trainType ? trainType.color : undefined }}
                                   >
                                     {numStr}
@@ -330,13 +330,13 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                                   {(dChar || tChar) && (
                                     <div className="flex flex-col items-start leading-none ml-0.5">
                                       <span
-                                        className="text-[10px] font-sans font-medium text-slate-300 select-none"
+                                        className="text-[10px] font-sans font-medium text-slate-300 select-none print:text-slate-900 print:text-[9px]"
                                         title={destination?.description || dChar || ''}
                                       >
                                         {dChar ?? '\u00A0'}
                                       </span>
                                       <span
-                                        className="text-[10px] font-sans font-medium select-none"
+                                        className="text-[10px] font-sans font-medium select-none print:text-[9px]"
                                         style={{ color: trainType ? trainType.color : undefined }}
                                         title={trainType?.description || tChar || ''}
                                       >
@@ -353,7 +353,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                     ))}
 
                     {/* Trailing cell — delete button for first/last empty rows, otherwise blank */}
-                    <td className="w-16 px-3 py-3 text-center align-middle bg-slate-950/10">
+                    <td className="w-16 px-3 py-3 text-center align-middle bg-slate-950/10 print:hidden">
                       {canDelete && (
                         <button
                           onClick={() => handleRemoveRow(rowIndex)}
@@ -372,7 +372,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
 
             {/* Bottom row insert button (if rows exist) */}
             {rows.length > 0 && (
-              <tr>
+              <tr className="print:hidden">
                 <td colSpan={headers.length + 2} className="p-0">
                   <button
                     onClick={handleAddRowBottom}
@@ -389,17 +389,17 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
 
       {/* Footnotes */}
       {(trainTypes.length > 0 || destinations.length > 0) && (
-        <div className="mt-4 px-2 space-y-2">
+        <div className="mt-4 px-2 space-y-2 print:mt-4 print:px-0 print:space-y-1.5 print:text-slate-900">
           {/* Train Types Footnote */}
           {trainTypes.length > 0 && (
             <div className="flex flex-wrap gap-4 items-center">
               {trainTypes.map((t) => (
-                <div key={t.char} className="flex items-center gap-1.5 text-sm">
-                  <span className="font-bold text-base" style={{ color: t.color }}>
+                <div key={t.char} className="flex items-center gap-1.5 text-sm print:text-xs">
+                  <span className="font-bold text-base print:text-sm" style={{ color: t.color }}>
                     {t.char}
                   </span>
                   {t.description && (
-                    <span className="text-slate-400">
+                    <span className="text-slate-400 print:text-slate-700">
                       ... {t.description}
                     </span>
                   )}
@@ -412,12 +412,12 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
           {destinations.length > 0 && (
             <div className="flex flex-wrap gap-4 items-center">
               {destinations.map((d) => (
-                <div key={d.char} className="flex items-center gap-1.5 text-sm">
-                  <span className="font-bold text-base text-slate-200">
+                <div key={d.char} className="flex items-center gap-1.5 text-sm print:text-xs">
+                  <span className="font-bold text-base text-slate-200 print:text-slate-900 print:text-sm">
                     {d.char}
                   </span>
                   {d.description && (
-                    <span className="text-slate-400">
+                    <span className="text-slate-400 print:text-slate-700">
                       ... {d.description}
                     </span>
                   )}
@@ -429,7 +429,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
       )}
 
       {/* Guide/Help Legend */}
-      <div className="mt-4 flex items-center gap-1.5 text-xs text-slate-500 px-2 justify-center sm:justify-start">
+      <div className="mt-4 flex items-center gap-1.5 text-xs text-slate-500 px-2 justify-center sm:justify-start print:hidden">
         <HelpCircle size={14} className="text-indigo-500/80" />
         <span>Click a departure to edit or delete it; click an empty cell area to add a new departure.</span>
       </div>
