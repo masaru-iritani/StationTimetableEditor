@@ -291,15 +291,45 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                     {row.minutes.map((mins, colIdx) => (
                       <td
                         key={colIdx}
-                        className="px-4 py-3 border-r border-slate-800 group min-h-[48px] cursor-pointer print:cursor-default print:border-r print:border-slate-300 print:py-2 print:px-3"
+                        className="px-4 py-3 border-r border-slate-800 group min-h-[48px] cursor-pointer focus-within:bg-indigo-950/10 print:cursor-default print:border-r print:border-slate-300 print:py-2 print:px-3 print:focus-within:bg-transparent"
                         onClick={() => handleEmptyCellClick(row.hour, colIdx)}
-                        title="Click to add a departure"
+                        title="Click or press Enter/Space to add a departure"
                       >
                         {mins.length === 0 ? (
-                          <div className="text-slate-700 group-hover:text-slate-500 text-xs italic text-center font-mono py-1.5 opacity-0 group-hover:opacity-100 transition-opacity print:hidden">
-                            Click to add
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`Add departure for ${row.hour}:00, ${headers[colIdx]}`}
+                            className="text-slate-700 group-hover:text-slate-500 focus:text-slate-400 text-xs italic text-center font-mono py-1.5 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity focus:outline-none rounded print:hidden"
+                            onClick={(e) => { e.stopPropagation(); handleEmptyCellClick(row.hour, colIdx); }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                handleEmptyCellClick(row.hour, colIdx);
+                              }
+                            }}
+                          >
+                            Press Enter to add
                           </div>
                         ) : (
+                          // When there are already departures, render an invisible focusable "add" button at the start
+                          // so keyboard users can still open the dialog without clicking a chip
+                          <>
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`Add departure for ${row.hour}:00, ${headers[colIdx]}`}
+                            className="sr-only focus:not-sr-only focus:block focus:text-indigo-400 focus:text-xs focus:italic focus:text-center focus:font-mono focus:py-1 focus:outline-none focus:rounded print:hidden"
+                            onClick={(e) => { e.stopPropagation(); handleEmptyCellClick(row.hour, colIdx); }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                handleEmptyCellClick(row.hour, colIdx);
+                              }
+                            }}
+                          >
+                            + Add departure
+                          </div>
                           <div className="flex flex-wrap justify-center gap-1.5 print:gap-x-2 print:gap-y-1">
                             {mins.map((min) => {
                               const { minute: numStr, trainType: tChar, destination: dChar } = parseDeparture(
@@ -348,6 +378,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                               );
                             })}
                           </div>
+                          </>
                         )}
                       </td>
                     ))}
@@ -431,7 +462,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
       {/* Guide/Help Legend */}
       <div className="mt-4 flex items-center gap-1.5 text-xs text-slate-500 px-2 justify-center sm:justify-start print:hidden">
         <HelpCircle size={14} className="text-indigo-500/80" />
-        <span>Click a departure to edit or delete it; click an empty cell area to add a new departure.</span>
+        <span>Click or <kbd className="px-1 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[10px]">Enter</kbd> a cell to add a departure; click a departure chip to edit or delete it.</span>
       </div>
 
       {/* Per-departure dialog */}

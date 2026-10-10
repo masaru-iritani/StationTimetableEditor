@@ -40,6 +40,8 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
   const [selectedDestination, setSelectedDestination] = useState<string>('');
   const [error, setError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const trainTypeGroupRef = useRef<HTMLDivElement>(null);
+  const destGroupRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -121,7 +123,53 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      isEditMode ? handleUpdate() : handleAdd();
+      if (isEditMode) {
+        handleUpdate();
+      } else {
+        handleAdd();
+      }
+    } else if (e.key === 'Escape') {
+      onClose();
+    }
+  };
+
+  /** Navigate the Train Type radiogroup with arrow keys. */
+  const trainTypeOptions = ['', ...trainTypes.map((t) => t.char)];
+  const destOptions = ['', ...destinations.map((d) => d.char)];
+
+  const focusCheckedRadio = (groupRef: React.RefObject<HTMLDivElement | null>) => {
+    // After a React state update re-renders, the newly tabIndex=0 button will be in the DOM
+    requestAnimationFrame(() => {
+      const btn = groupRef.current?.querySelector<HTMLButtonElement>('[tabindex="0"]');
+      btn?.focus();
+    });
+  };
+
+  const handleTrainTypeKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const idx = trainTypeOptions.indexOf(selectedTrainType);
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedTrainType(trainTypeOptions[(idx + 1) % trainTypeOptions.length]);
+      focusCheckedRadio(trainTypeGroupRef);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedTrainType(trainTypeOptions[(idx - 1 + trainTypeOptions.length) % trainTypeOptions.length]);
+      focusCheckedRadio(trainTypeGroupRef);
+    } else if (e.key === 'Escape') {
+      onClose();
+    }
+  };
+
+  const handleDestKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const idx = destOptions.indexOf(selectedDestination);
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedDestination(destOptions[(idx + 1) % destOptions.length]);
+      focusCheckedRadio(destGroupRef);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedDestination(destOptions[(idx - 1 + destOptions.length) % destOptions.length]);
+      focusCheckedRadio(destGroupRef);
     } else if (e.key === 'Escape') {
       onClose();
     }
@@ -163,11 +211,12 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
               <label className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-2">
                 Train Type
               </label>
-              <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Train Type">
+              <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Train Type" onKeyDown={handleTrainTypeKeyDown}>
                 <button
                   type="button"
                   role="radio"
                   aria-checked={selectedTrainType === ''}
+                  tabIndex={selectedTrainType === '' ? 0 : -1}
                   onClick={() => setSelectedTrainType('')}
                   className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
                     selectedTrainType === ''
@@ -185,6 +234,7 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
                       type="button"
                       role="radio"
                       aria-checked={isSelected}
+                      tabIndex={isSelected ? 0 : -1}
                       onClick={() => setSelectedTrainType(t.char)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
                         isSelected
@@ -214,11 +264,12 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
               <label className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-2">
                 Destination
               </label>
-              <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Destination">
+              <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Destination" onKeyDown={handleDestKeyDown}>
                 <button
                   type="button"
                   role="radio"
                   aria-checked={selectedDestination === ''}
+                  tabIndex={selectedDestination === '' ? 0 : -1}
                   onClick={() => setSelectedDestination('')}
                   className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
                     selectedDestination === ''
@@ -236,6 +287,7 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
                       type="button"
                       role="radio"
                       aria-checked={isSelected}
+                      tabIndex={isSelected ? 0 : -1}
                       onClick={() => setSelectedDestination(d.char)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
                         isSelected
