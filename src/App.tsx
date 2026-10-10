@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Share2, RotateCcw, Trash2, Check, Settings, MapPin } from 'lucide-react';
-import { parseHash, serializeHash, getDefaultRows } from './utils/timetableState';
+import { parseHash, serializeHash, getDefaultRows, DEMO_HASH } from './utils/timetableState';
 import type { TimetableRow, TrainType, Destination } from './utils/timetableState';
 import { TimetableGrid } from './components/TimetableGrid';
 import { TrainTypeEditor } from './components/TrainTypeEditor';
@@ -102,14 +102,13 @@ export default function App() {
             console.error('Failed to parse saved state:', e);
           }
         }
-        // Fallback to default
-        const defaultHeaders = ['のぼり（琴平方面）'];
-        const defaultRows = getDefaultRows(1);
-        setHeaders(defaultHeaders);
-        setRows(defaultRows);
-        setTrainTypes([]);
-        setDestinations([]);
-        window.location.hash = serializeHash(defaultHeaders, defaultRows, [], []);
+        // Fallback to demo timetable
+        const demo = parseHash(DEMO_HASH);
+        setHeaders(demo.headers);
+        setRows(demo.rows);
+        setTrainTypes(demo.trainTypes);
+        setDestinations(demo.destinations);
+        window.location.hash = serializeHash(demo.headers, demo.rows, demo.trainTypes, demo.destinations);
       }
     };
 
@@ -186,20 +185,9 @@ export default function App() {
     setShowClearConfirm(false);
   };
 
-  const handleResetToTsubojiri = () => {
-    // A nice Easter Egg setting up the original station timetable in README
-    const tsubojiriHeaders = ['のぼり（琴平方面）'];
-    const tsubojiriRows = getDefaultRows(1).map(row => {
-      // 7:02, 8:29, 12:33, 13:52, 17:01
-      const updated = { ...row };
-      if (row.hour === 7) updated.minutes = [['02']];
-      else if (row.hour === 8) updated.minutes = [['29']];
-      else if (row.hour === 12) updated.minutes = [['33']];
-      else if (row.hour === 13) updated.minutes = [['52']];
-      else if (row.hour === 17) updated.minutes = [['01']];
-      return updated;
-    });
-    handleStateChange(tsubojiriHeaders, tsubojiriRows, trainTypes, destinations);
+  const handleLoadDemoTimetable = () => {
+    const demo = parseHash(DEMO_HASH);
+    handleStateChange(demo.headers, demo.rows, demo.trainTypes, demo.destinations);
   };
 
   return (
@@ -235,9 +223,9 @@ export default function App() {
             </button>
 
             <button
-              onClick={handleResetToTsubojiri}
+              onClick={handleLoadDemoTimetable}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold rounded-xl transition-all border border-slate-800 cursor-pointer"
-              title="Load original Tsubojiri station demo timetable"
+              title="Load demo timetable"
             >
               <RotateCcw size={14} />
               <span className="hidden sm:inline">Demo Timetable</span>
