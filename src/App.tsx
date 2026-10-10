@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Share2, RotateCcw, Trash2, Check, Settings, MapPin } from 'lucide-react';
-import { parseHash, serializeHash, getDefaultRows, DEMO_HASH } from './utils/timetableState';
+import { parseHash, serializeHash, getDefaultRows, DEMO_HASH, parseDeparture, formatDeparture } from './utils/timetableState';
 import type { TimetableRow, TrainType, Destination } from './utils/timetableState';
 import { TimetableGrid } from './components/TimetableGrid';
 import { TrainTypeEditor } from './components/TrainTypeEditor';
@@ -330,14 +330,56 @@ export default function App() {
         isOpen={showTrainTypes}
         onClose={() => setShowTrainTypes(false)}
         trainTypes={trainTypes}
-        onSave={(newTrainTypes) => handleStateChange(headers, rows, newTrainTypes, destinations)}
+        onSave={(newTrainTypes, renameMap) => {
+          let updatedRows = rows;
+          if (renameMap && renameMap.size > 0) {
+            updatedRows = rows.map((row) => ({
+              ...row,
+              minutes: row.minutes.map((col) =>
+                col.map((dep) => {
+                  const parsed = parseDeparture(dep, trainTypes, destinations);
+                  if (renameMap.has(parsed.trainType)) {
+                    return formatDeparture(
+                      parsed.minute,
+                      renameMap.get(parsed.trainType)!,
+                      parsed.destination
+                    );
+                  }
+                  return dep;
+                })
+              ),
+            }));
+          }
+          handleStateChange(headers, updatedRows, newTrainTypes, destinations);
+        }}
       />
 
       <DestinationEditor
         isOpen={showDestinations}
         onClose={() => setShowDestinations(false)}
         destinations={destinations}
-        onSave={(newDestinations) => handleStateChange(headers, rows, trainTypes, newDestinations)}
+        onSave={(newDestinations, renameMap) => {
+          let updatedRows = rows;
+          if (renameMap && renameMap.size > 0) {
+            updatedRows = rows.map((row) => ({
+              ...row,
+              minutes: row.minutes.map((col) =>
+                col.map((dep) => {
+                  const parsed = parseDeparture(dep, trainTypes, destinations);
+                  if (renameMap.has(parsed.destination)) {
+                    return formatDeparture(
+                      parsed.minute,
+                      parsed.trainType,
+                      renameMap.get(parsed.destination)!
+                    );
+                  }
+                  return dep;
+                })
+              ),
+            }));
+          }
+          handleStateChange(headers, updatedRows, trainTypes, newDestinations);
+        }}
       />
 
       {/* Footer */}
