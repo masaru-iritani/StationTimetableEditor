@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Share2, RotateCcw, Trash2, Check, Settings, MapPin } from 'lucide-react';
+import { Share2, RotateCcw, Trash2, Check, Settings, MapPin, HelpCircle, X } from 'lucide-react';
 import { parseHash, serializeHash, getDefaultRows, DEMO_HASH, parseDeparture, formatDeparture } from './utils/timetableState';
 import type { TimetableRow, TrainType, Destination } from './utils/timetableState';
 import { TimetableGrid } from './components/TimetableGrid';
@@ -17,6 +17,7 @@ export default function App() {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showTrainTypes, setShowTrainTypes] = useState(false);
   const [showDestinations, setShowDestinations] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   // Initialize state from URL hash or localStorage on mount
   useEffect(() => {
@@ -275,6 +276,15 @@ export default function App() {
               <MapPin size={14} />
               <span className="hidden sm:inline">Destinations</span>
             </button>
+
+            <button
+              onClick={() => setShowHelp(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold rounded-xl transition-all border border-slate-800 cursor-pointer"
+              title="Help"
+            >
+              <HelpCircle size={14} />
+              <span className="hidden sm:inline">Help</span>
+            </button>
           </div>
         </div>
       </header>
@@ -282,37 +292,52 @@ export default function App() {
       {/* Main Grid Content */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8 space-y-6 print:max-w-none print:w-full print:p-0 print:m-0 print:space-y-0">
         
-        {/* Intro Info Banner */}
-        <section className="glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-4 print:hidden">
-          <div className="space-y-1.5 z-10 max-w-2xl">
-            <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-indigo-400 animate-pulse"></span>
-              Real-time URL Synchronization
-            </h2>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Every edit you make to columns, hours, or scheduled departure minutes updates the URL hash in real-time. Simply copy the URL to share the state of the timetable or bookmark it for future use.
-            </p>
+        {/* Help Dialog */}
+        {showHelp && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm print:hidden">
+            <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 space-y-4 relative">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
+                  <HelpCircle size={18} className="text-indigo-400" />
+                  Help
+                </h2>
+                <button
+                  onClick={() => setShowHelp(false)}
+                  className="text-slate-400 hover:text-slate-100 transition-colors cursor-pointer"
+                  title="Close"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="space-y-3 text-sm text-slate-300 leading-relaxed">
+                <div>
+                  <h3 className="font-semibold text-slate-100 mb-1">Real-time URL Synchronization</h3>
+                  <p className="text-slate-400">Every edit you make to columns, hours, or scheduled departure minutes updates the URL hash in real-time. Simply copy the URL to share the state of the timetable or bookmark it for future use.</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-100 mb-1">Editing Departures</h3>
+                  <p className="text-slate-400">Click any cell in the timetable grid to open the minute editor. You can add or remove departure minutes for each hour and route.</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-100 mb-1">Train Types &amp; Destinations</h3>
+                  <p className="text-slate-400">Use the <strong className="text-slate-300">Train Types</strong> and <strong className="text-slate-300">Destinations</strong> buttons in the toolbar to define abbreviated labels that appear on departure entries.</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-100 mb-1">Share &amp; Print</h3>
+                  <p className="text-slate-400">Click <strong className="text-slate-300">Copy Share Link</strong> to copy the current timetable URL to your clipboard. Use your browser's print function to print the timetable.</p>
+                </div>
+              </div>
+              <div className="pt-2 flex justify-end">
+                <button
+                  onClick={() => setShowHelp(false)}
+                  className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl transition-all cursor-pointer"
+                >
+                  Got it
+                </button>
+              </div>
+            </div>
           </div>
-          
-          <div className="flex gap-4 shrink-0 bg-slate-900/60 p-4 border border-slate-800/80 rounded-xl w-full md:w-auto">
-            <div className="flex flex-col items-center flex-1 md:flex-initial">
-              <span className="text-2xl font-extrabold text-indigo-400 font-mono">{headers.length}</span>
-              <span className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Routes</span>
-            </div>
-            <div className="w-px bg-slate-800 align-stretch"></div>
-            <div className="flex flex-col items-center flex-1 md:flex-initial">
-              <span className="text-2xl font-extrabold text-indigo-400 font-mono">{rows.length}</span>
-              <span className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Hours</span>
-            </div>
-            <div className="w-px bg-slate-800 align-stretch"></div>
-            <div className="flex flex-col items-center flex-1 md:flex-initial">
-              <span className="text-2xl font-extrabold text-indigo-400 font-mono">
-                {rows.reduce((sum, r) => sum + r.minutes.reduce((s, m) => s + m.length, 0), 0)}
-              </span>
-              <span className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Departures</span>
-            </div>
-          </div>
-        </section>
+        )}
 
         {/* Timetable Table Grid */}
         <section className="space-y-2">
