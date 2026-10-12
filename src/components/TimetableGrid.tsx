@@ -274,7 +274,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                     className="border-b border-slate-800/60 hover:bg-slate-900/10 transition-colors print:border-b print:border-slate-300 print:hover:bg-transparent"
                   >
                     {/* Hour cell */}
-                    <td className="px-4 py-3 text-center text-sm font-semibold text-slate-300 bg-slate-900/20 border-r border-slate-800 font-mono print:text-slate-900 print:font-bold print:bg-slate-50 print:border-r print:border-slate-400 print:py-2 print:px-2">
+                    <td className="px-4 py-3 text-center text-2xl font-bold text-slate-300 bg-slate-900/20 border-r border-slate-800 font-mono print:text-slate-900 print:font-bold print:bg-slate-50 print:border-r print:border-slate-400 print:py-2 print:px-2">
                       {row.hour}
                     </td>
 
