@@ -175,8 +175,22 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
     }
   };
 
+  /** Dialog-level keyboard shortcuts: Escape → Cancel, Delete → Delete button (edit mode, not when typing). */
+  const handleDialogKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      onClose();
+    } else if (e.key === 'Delete' && isEditMode) {
+      // Suppress when the text input has focus so normal text editing is unaffected.
+      if (document.activeElement !== inputRef.current) {
+        e.preventDefault();
+        handleDelete();
+      }
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 print:hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 print:hidden" onKeyDown={handleDialogKeyDown}>
       {/* Overlay */}
       <div
         className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity duration-300"
