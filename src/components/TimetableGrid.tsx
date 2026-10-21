@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import type { FC } from 'react';
 import { Plus, Trash2, HelpCircle } from 'lucide-react';
 import type { TimetableRow, TrainType, Destination } from '../utils/timetableState';
@@ -28,6 +28,19 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
   /** The raw departure string being edited, or null when adding a new departure. */
   const [activeDeparture, setActiveDeparture] = useState<string | null>(null);
 
+  /**
+   * After the dialog closes we want to refocus:
+   *   'chip'  → the departure chip for `pendingFocusDep` (after update/cancel)
+   *   'slot'  → the cell slot trigger for the active hour/col (after delete)
+   */
+  const pendingFocusRef = useRef<{ kind: 'chip'; dep: string; hour: number; col: number } | { kind: 'slot'; hour: number; col: number } | null>(null);
+
+  /** Called by the dialog's close path to request post-close focus. */
+  const closeDialog = useCallback((focus: typeof pendingFocusRef.current) => {
+    pendingFocusRef.current = focus;
+    setDialogOpen(false);
+  }, []);
+
   // Column management
   const handleAddColumn = () => {
     const nextColIndex = headers.length;
@@ -55,6 +68,33 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
     newHeaders[colIndex] = newName;
     onChange(newHeaders, rows);
   };
+
+  // After the dialog closes, focus the appropriate element.
+  useEffect(() => {
+    if (dialogOpen) return;
+    const target = pendingFocusRef.current;
+    if (!target) return;
+    pendingFocusRef.current = null;
+
+    // Defer by two animation frames so that React has committed the updated DOM
+    // (especially important after a delete where the chip disappears).
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (target.kind === 'chip') {
+          const btn = document.querySelector<HTMLButtonElement>(
+            `[data-departure-key="${target.hour}-${target.col}-${CSS.escape(target.dep)}"]`
+          );
+          btn?.focus();
+        } else {
+          // 'slot' — focus the cell's "add" trigger (the sr-only / empty-state div)
+          const slot = document.querySelector<HTMLElement>(
+            `[data-cell-slot="${target.hour}-${target.col}"]`
+          );
+          slot?.focus();
+        }
+      });
+    });
+  }, [dialogOpen]);
 
   // Row management
   const handleAddRowTop = () => {
@@ -140,12 +180,15 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
       if (without.includes(newDep)) return without;
       return [...without, newDep].sort((a, b) => parseInt(a, 10) - parseInt(b, 10) || a.localeCompare(b));
     });
+    closeDialog({ kind: 'chip', dep: newDep, hour: activeHour, col: activeColIndex });
   };
 
   const handleDeleteDeparture = (dep: string) => {
     if (activeHour === null || activeColIndex === null) return;
     updateCellMinutes(activeHour, activeColIndex, (prev) => prev.filter(m => m !== dep));
+    closeDialog({ kind: 'slot', hour: activeHour, col: activeColIndex });
   };
+
 
   // Maintain stable per-column IDs so EditableHeader components don't accidentally retain other column state
   const [headerIds, setHeaderIds] = useState<string[]>([]);
@@ -291,6 +334,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                             role="button"
                             tabIndex={0}
                             aria-label={`Add departure for ${row.hour}:00, ${headers[colIdx]}`}
+                            data-cell-slot={`${row.hour}-${colIdx}`}
                             className="text-slate-700 group-hover:text-slate-500 focus:text-slate-400 text-xs italic text-center font-mono py-1.5 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity focus:outline-none rounded print:hidden"
                             onClick={(e) => { e.stopPropagation(); handleEmptyCellClick(row.hour, colIdx); }}
                             onKeyDown={(e) => {
@@ -310,6 +354,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                             role="button"
                             tabIndex={0}
                             aria-label={`Add departure for ${row.hour}:00, ${headers[colIdx]}`}
+                            data-cell-slot={`${row.hour}-${colIdx}`}
                             className="sr-only focus:not-sr-only focus:block focus:text-indigo-400 focus:text-xs focus:italic focus:text-center focus:font-mono focus:py-1 focus:outline-none focus:rounded print:hidden"
                             onClick={(e) => { e.stopPropagation(); handleEmptyCellClick(row.hour, colIdx); }}
                             onKeyDown={(e) => {
@@ -335,6 +380,7 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
                                 <button
                                   key={min}
                                   type="button"
+                                  data-departure-key={`${row.hour}-${colIdx}-${min}`}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleDepartureClick(row.hour, colIdx, min);
@@ -459,7 +505,11 @@ export const TimetableGrid: FC<TimetableGridProps> = ({
       {/* Per-departure dialog */}
       <EditMinutesDialog
         isOpen={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        onClose={() => closeDialog(
+          activeDeparture !== null && activeHour !== null && activeColIndex !== null
+            ? { kind: 'chip', dep: activeDeparture, hour: activeHour, col: activeColIndex }
+            : null
+        )}
         hour={activeHour || 0}
         routeName={activeRouteName}
         departure={activeDeparture}

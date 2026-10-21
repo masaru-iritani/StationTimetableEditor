@@ -111,13 +111,13 @@ export const EditMinutesDialog: FC<EditMinutesDialogProps> = ({
     const dep = buildDeparture(inputValue);
     if (dep === null) return;
     onUpdate(departure, dep);
-    onClose();
+    // Parent closes the dialog (via onUpdate → closeDialog) to also restore focus.
   };
 
   const handleDelete = () => {
     if (!departure) return;
     onDelete(departure);
-    onClose();
+    // Parent closes the dialog (via onDelete → closeDialog) to also restore focus.
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
